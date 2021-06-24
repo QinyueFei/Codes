@@ -42,8 +42,12 @@ hdu = fits.open(path+file)[0]
 pos_cen = [745, 749]
 mom1 = hdu.data[0][0] - hdu.data[0][0][745, 749]
 size = 200
+pix_size = hdu.header['CDELT1']*u.deg.to('arcsec')
 
-
+#############################
+## plot the momentum 0 map ##
+#############################
+import matplotlib
 
 level = np.linspace(-200,200,11)
 
@@ -80,3 +84,5 @@ ax.add_artist(Beam[0])
 
 ax.set_xlim(pos_cen[0]-size,pos_cen[0]+size)
 ax.set_ylim(pos_cen[1]-size,pos_cen[1]+size)
+
+plt.savefig('/home/qyfei/Desktop/Codes/Result/mom1.pdf', bbox_inches='tight', dpi=300) #savefig
