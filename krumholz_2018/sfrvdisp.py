@@ -853,7 +853,7 @@ plt.xscale('log')
 plt.xlim(sfrlim)
 plt.ylim(sigmalim)
 # Note: the pause statement is needed due to a matplotlib bug
-pause(0.01)
+#pause(0.01)
 for l in plt.gca().get_xticklabels():
     if l.get_text() == '$10^{3}$':
         plt.setp(l, visible=False)

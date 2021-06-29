@@ -14,6 +14,7 @@ from astropy.constants import G
 import os.path as osp
 import collections
 from kmtnew import fH2KMTnew
+import ma
 
 # Choice of CO alpha factor scalings NORMALIZED TO DADDI'S CONVENTIONS
 alphasb = 1.0      # starburst value
@@ -154,9 +155,9 @@ for line in fp:
     sigmasfr_kenn_ulirg.append(10.0**float(spl[1]))
     torb_kenn_ulirg.append(float(spl[2])*100)
 fp.close()
-sigmag_kenn_ulirg=array(sigmag_kenn_ulirg)*Msun/pc**2
-sigmasfr_kenn_ulirg=array(sigmasfr_kenn_ulirg)*Msun/pc**2/Myr
-torb_kenn_ulirg=array(torb_kenn_ulirg)*Myr
+sigmag_kenn_ulirg=np.array(sigmag_kenn_ulirg)*Msun/pc**2
+sigmasfr_kenn_ulirg=np.array(sigmasfr_kenn_ulirg)*Msun/pc**2/Myr
+torb_kenn_ulirg=np.array(torb_kenn_ulirg)*Myr
 
 # Normal spirals from Kennicutt, 1998, ApJ, 498, 541
 sigmag_kenn_spiral=[]
@@ -175,9 +176,9 @@ for line in fp:
     sigmasfr_kenn_spiral.append(10.0**float(spl[1]))
     torb_kenn_spiral.append(float(spl[2])*100)
 fp.close()
-sigmag_kenn_spiral=array(sigmag_kenn_spiral)*Msun/pc**2
-sigmasfr_kenn_spiral=array(sigmasfr_kenn_spiral)*Msun/pc**2/Myr
-torb_kenn_spiral=array(torb_kenn_spiral)*Myr
+sigmag_kenn_spiral=np.array(sigmag_kenn_spiral)*Msun/pc**2
+sigmasfr_kenn_spiral=np.array(sigmasfr_kenn_spiral)*Msun/pc**2/Myr
+torb_kenn_spiral=np.array(torb_kenn_spiral)*Myr
 
 # Pixel data from Bigiel et al., 2010, AJ, 140, 1194
 try:
