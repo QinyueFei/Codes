@@ -78,7 +78,8 @@ CO21_cube = hdu.data[0]
 # set the coordinates of the region where spectrum is extracted
 yy,xx = np.indices([600, 597],dtype='float')
 
-off_set = np.array([-43, 5])
+n = 14 #region number
+off_set = np.array([193,36])
 
 xpos, ypos = 299.37+off_set[0], 299.28+off_set[1] #center of region where extracting the spectrum
 ring = 0.36 #units arcsec
@@ -136,16 +137,16 @@ ax.add_artist(rec)
 Beam = beam(hdu, pos_cen[0]-size*3/4+5, pos_cen[1]-size/2+5, 'k', pix_size)
 ax.add_artist(Beam[0])
 ## Left part region
-ax.set_xlim(pos_cen[0]-size*3/4, pos_cen[0]+size/4)
-ax.set_ylim(pos_cen[1]-size/2, pos_cen[1]+size/2)
+#ax.set_xlim(pos_cen[0]-size/4, pos_cen[0]+size*3/4)
+#ax.set_ylim(pos_cen[1]-size/2, pos_cen[1]+size/2)
 
 ## Right part region
-#ax.set_xlim(pos_cen[0]-size*1/4, pos_cen[0]+size*5/4)
-#ax.set_ylim(pos_cen[1]-size/2, pos_cen[1]+size*4/4)
+ax.set_xlim(pos_cen[0]-size*1/4, pos_cen[0]+size*5/4)
+ax.set_ylim(pos_cen[1]-size/2, pos_cen[1]+size*4/4)
 
 circ = matplotlib.patches.Circle((xpos, ypos), rad, fill=False, edgecolor='C1', zorder=2, lw=3, linestyle='--')
 ax.add_artist(circ)
-#plt.savefig('/home/qyfei/Desktop/Codes/Analysis/spectrum/region01.pdf', bbox_inches='tight')
+plt.savefig('/home/qyfei/Desktop/Codes/Analysis/spectrum/region%2i.pdf'%n, bbox_inches='tight')
 
 #######################
 ## plot the spectrum ##
@@ -164,7 +165,7 @@ ax1.set_xlabel('Velocity [km/s]')
 ax1.set_ylabel('Flux density [mJy]')
 ax1.legend(loc='upper right')
 
-# %% Fit the spectra
+# %% Fit the spectra with Gaussian profile
 
 # minimization algorithm
 from astropy.modeling import models
@@ -269,8 +270,17 @@ ax2.set_ylim(-5*sigma, 5*sigma)
 
 ax2.set_xlabel("Velocity [km/s]")
 ax2.set_ylabel("Residual [mJy]")
-#plt.savefig('Result/CO21_spectrum_fit.pdf', bbox_inches='tight', dpi=300)
-# %% Fit the spectra with double Gaussian profile with MCMC
+plt.savefig('/home/qyfei/Desktop/Codes/Analysis/spectrum/region%2i_spec.pdf'%n, bbox_inches='tight', dpi=300)
+
+## chi2 evaluation
+z2 = (res/sigma)**2
+chi2 = np.sum(z2)/(len(z2)-3)
+print(chi2)
+
+# %% 
+# 
+# Fit the spectra with double Gaussian profile with MCMC
+
 
 # define the profile and minimization algorithm
 
@@ -384,7 +394,9 @@ ax1.fill_between(velo, sigma_p, sigma_m, facecolor='k',hatch='/',linestyle=':',a
 w50_0 = 2*np.log(2)*para_fit[2]#+np.sqrt(2*np.log(2))*para_fit[3]
 w50_1 = 2*np.log(2)*para_fit[5]
 ax1.vlines(para_fit[1]-w50_0, -100,500, 'b', ls='--', label='$W_{50}$')
+ax1.vlines(para_fit[1]+w50_0, -100,500, 'b', ls='--')
 ax1.vlines(para_fit[4]+w50_1, -100,500, 'b', ls='--')
+ax1.vlines(para_fit[4]-w50_1, -100,500, 'b', ls='--')
 
 ax1.hlines(0,-1000,1000,'k',':')
 ax1.set_xlim(para_fit[1]-10*para_fit[2], para_fit[4]+10*para_fit[5])
@@ -402,5 +414,11 @@ ax2.set_ylim(-5*sigma, 5*sigma)
 ax2.set_xlabel("Velocity [km/s]")
 ax2.set_ylabel("Residual [mJy]")
 
-plt.savefig('spectrum/region01_spec.pdf', bbox_inches='tight')
+plt.savefig('spectrum/region%2i_spec.pdf'%n, bbox_inches='tight')
+
+## chi2 evaluation
+z2 = (res/sigma)**2
+chi2 = np.sum(z2)/(len(z2)-6)
+print(chi2)
+
 # %%
