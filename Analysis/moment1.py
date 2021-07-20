@@ -11,14 +11,10 @@ from astropy.modeling import models, fitting
 from astropy.stats import sigma_clipped_stats
 
 #%matplotlib inline
-plt.rcParams['xtick.direction']='in'
-plt.rcParams['ytick.direction']='in'
-plt.rcParams['font.size']=20
-plt.rcParams['font.family']='serif'
-plt.rcParams['xtick.minor.visible']=True
-plt.rcParams['ytick.minor.visible']=True
-plt.rcParams['xtick.top']=True
-plt.rcParams['ytick.right']=True
+plt.rc('text', usetex=True)
+plt.rc('font', family='dejavuserif', size=25)
+plt.rc('xtick', direction='in', top=True)
+plt.rc('ytick', direction='in', right=True)
 
 def beam(HDU, XPOS, YPOS, col, cellsize):
     hdu = HDU

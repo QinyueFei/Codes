@@ -86,8 +86,8 @@ ring = 0.36 #units arcsec
 rad = ring/2/pix_size #units pix
 
 
-region_x = np.array([-124, -135, -132, -134, -136, -130, -124, -115, -108, -100, -78, -68, -37, -23, -10, -2, 15])
-region_y = np.array([-82, -60, -38, -21, -9, 2, 15, 30, 40, 50, 68, 77, 89, 92, 94, 95, 95])
+region_x = np.array([-124, -135, -132, -134, -136, -130, -124, -115, -108, -100, -78, -68, -37, -23, -10, -2, 15, -37, -37, -39, -42, -44, -44, -33, -38, -32, -18, -2, 0, 5, 10, 28, 43, 42, 52, 95, 120, 178, 192, 194, 192, 193, 178, 60, 95, -65])
+region_y = np.array([-82, -60, -38, -21, -9, 2, 15, 30, 40, 50, 68, 77, 89, 92, 94, 95, 95, -25, -18, -12, -5, 2, 10, 30, 53, 57, 68, 72, -45, -44, -46, -58, -58, -80, -78, -60, -40, 15, 40, 50, 80, 90, 155, -125, -118, 165])
 
 transform = Affine2D()
 transform.scale(pix_size, pix_size)
@@ -122,8 +122,8 @@ ax.add_artist(rec)
 Beam = beam(hdu, pos_cen[0]-size+5, pos_cen[1]-size+5, 'k', pix_size)
 ax.add_artist(Beam[0])
 ## Left part region
-ax.set_xlim(pos_cen[0]-size*3/4, pos_cen[0]+size*1/4)
-ax.set_ylim(pos_cen[1]-size/2, pos_cen[1]+size/2)
+ax.set_xlim(pos_cen[0]-size, pos_cen[0]+size)
+ax.set_ylim(pos_cen[1]-size, pos_cen[1]+size)
 
 ## Right part region
 #ax.set_xlim(pos_cen[0]-size, pos_cen[0]+size)
@@ -135,7 +135,7 @@ for i in range(len(region_x)):
     ax.add_artist(circ)
     ax.text(pos_cen[0]+region_x[i], pos_cen[1]+region_y[i], "%i"%(i+1), c="r", fontsize=12, zorder=3)
 
-plt.savefig('/home/qyfei/Desktop/Codes/Result/clouds/region_clouds.pdf', bbox_inches='tight')
+plt.savefig('/home/qyfei/Desktop/Codes/Result/clouds/region_total_cloud.pdf', bbox_inches='tight')
 
 # %%
 ## Extract spectrum in each region
@@ -166,10 +166,14 @@ for i in range(len(region_x)):
 # minimization algorithm
 # Define models
 from astropy.modeling import models
+from astropy.convolution import convolve, Gaussian1DKernel
+
+Kernel_spec = Gaussian1DKernel(0.85)
+
 def Gauss(x_, a_, m_, s_):
     x, a, m, s = x_, a_, m_, s_
     gauss = models.Gaussian1D(a, m, s)
-    return gauss(x)
+    return convolve(gauss(x), Kernel_spec)
 
 def log_likelihood(theta, x, y, yerr):
     a, m, s = theta
@@ -203,17 +207,31 @@ para = [para_A, para_m, para_s, para_f]
 
 # %%
 ## Fitting
-paths = "/home/qyfei/Desktop/Codes/Result/clouds/paras/"
-for i in range(len(region_x)):
-    print("Fit region %i spectrum:\n"%(i+1))
 
+from scipy.optimize import minimize
+
+paths = "/home/qyfei/Desktop/Codes/Result/clouds/paras/total/conv/"
+for i in range(len(region_x)):
     f = flux[i]
     N = np.where(f == np.max(f))[0]
     m_g = velo[N[0]].value
     a_g = f[N[0]].value
-
     f_err = sigma[i]
-    pos = np.array([a_g, m_g, 20]) + 1e-4 * np.random.randn(32, 3)
+    
+    print("Fit region %i with maximum likelihood:"%(i+1))
+    np.random.seed(42)
+    nll = lambda *args: -log_likelihood(*args)
+    initial = np.array([a_g, m_g, 20]) + 0.1 * np.random.randn(3)
+    soln = minimize(nll, initial, args=(velo.value, f.value, f_err))
+    a_ml, m_ml, s_ml = soln.x
+    print("Maximum likelihood estimates:")
+    print("a = {0:.3f}".format(a_ml))
+    print("m = {0:.3f}".format(m_ml))
+    print("s = {0:.3f}".format(s_ml))
+    print("\n")
+
+    print("Fit region %i spectrum with MCMC:"%(i+1))
+    pos = np.array([a_ml, m_ml, s_ml]) + 1e-4 * np.random.randn(32, 3)
     nwalkers, ndim = pos.shape
     with Pool() as pool:
         sampler = emcee.EnsembleSampler(nwalkers, ndim, log_probability, args=(velo.value, f.value, f_err), pool=pool)
@@ -294,6 +312,8 @@ for i in range(len(region_x)):
 # %%
 ## Output parameters 
 
+paths = "/home/qyfei/Desktop/Codes/Result/clouds/paras/total/no_conv/"
+
 para_A = np.loadtxt(paths+"para_A.txt")
 para_f = np.loadtxt(paths+"para_f.txt")
 para_m = np.loadtxt(paths+"para_m.txt")
@@ -315,23 +335,23 @@ ampl_fit_emaj = para_A[:,2]
 # %%
 ## try to fit
 
-def log_likelihood(theta, x, y, yerr):
+def log_likelihood(theta, x, y, xerr, yerr):
     m, b = theta
-    model = m * x + b
-    sigma2 = yerr ** 2 
+    model = np.power(10, b)*np.power(x, m)
+    sigma2 = xerr **2 + yerr ** 2 
     return -0.5 * np.sum((y - model) ** 2 / sigma2)
 
-x = np.delete(np.log10(flux_fit), 9)
-y = np.delete(np.log10(disp_fit), 9)
-xerr = np.delete(np.log10(flux_fit_emaj), 9)
-yerr = np.delete(np.log10(disp_fit_emaj), 9)
+x = flux_fit
+y = disp_fit
+xerr = flux_fit_emaj
+yerr = disp_fit_emaj
 
 from scipy.optimize import minimize
 
 np.random.seed(42)
 nll = lambda *args: -log_likelihood(*args)
-initial = np.array([0.4, 0.5]) + 0.1 * np.random.randn(2)
-soln = minimize(nll, initial, args=(x, y, yerr))
+initial = np.array([0.5, 0.]) + 0.1 * np.random.randn(2)
+soln = minimize(nll, initial, args=(x, y, xerr, yerr))
 m_ml, b_ml = soln.x
 
 print("Maximum likelihood estimates:")
@@ -345,18 +365,18 @@ def log_prior(theta):
         return 0.0
     return -np.inf
 
-def log_probability(theta, x, y, yerr):
+def log_probability(theta, x, y, xerr, yerr):
     lp = log_prior(theta)
     if not np.isfinite(lp):
         return -np.inf
-    return lp + log_likelihood(theta, x, y, yerr)
+    return lp + log_likelihood(theta, x, y, xerr, yerr)
 
 import emcee
 
 pos = soln.x + 1e-4 * np.random.randn(32, 2)
 nwalkers, ndim = pos.shape
 
-sampler = emcee.EnsembleSampler(nwalkers, ndim, log_probability, args=(x, y, yerr))
+sampler = emcee.EnsembleSampler(nwalkers, ndim, log_probability, args=(x, y, xerr, yerr))
 sampler.run_mcmc(pos, 5000, progress=True)
 
 # %%
@@ -375,11 +395,12 @@ axes[-1].set_xlabel("step number")
 
 # %%
 flat_samples = sampler.get_chain(discard=100, thin=15, flat=True)
-
+para_fin = []
 from IPython.display import display, Math
 
 for i in range(ndim):
     mcmc = np.percentile(flat_samples[:, i], [16, 50, 84])
+    para_fin.append(mcmc[1])
     q = np.diff(mcmc)
     txt = "\mathrm{{{3}}} = {0:.3f}_{{-{1:.3f}}}^{{{2:.3f}}}"
     txt = txt.format(mcmc[1], q[0], q[1], labels[i])
@@ -387,6 +408,8 @@ for i in range(ndim):
 
 # %%
 ## Larson's law?
+
+x0 = np.linspace(0, 200, 10000)
 
 plt.figure(figsize=(8,8))
 ax = plt.subplot(111)
@@ -402,17 +425,18 @@ for i in range(len(flux_fit)):
 ax.set_xlabel("Flux [mJy$\cdot$km/s]")
 ax.set_ylabel("$\sigma$ [km/s]")
 ax.loglog()
-ax.set_xlim(27, 120)
-ax.set_ylim(7, 32)
+ax.set_xlim(27, 180)
+ax.set_ylim(6, 60)
 ax.plot(x0, np.power(10, b_ml)*np.power(x0, m_ml), "k--")
-ax.text(30, 20, "r=0.63$\pm$0.01")
+ax.text(30, 20, "r=0.79$\pm$0.01")
 
 inds = np.random.randint(len(flat_samples), size=100)
 for ind in inds:
     sample = flat_samples[ind]
-    ax.plot(x0, np.power(10, sample[1])*np.power(x0, sample[0]), "C1", alpha=0.1)
+    ax.plot(x0, np.power(10, sample[1])*np.power(x0, sample[0]), "r", alpha=0.1)
+ax.plot(x0, np.power(10, para_fin[1])*np.power(x0, para_fin[0]), "r", lw = 3, zorder = 3)
+#plt.savefig(paths+"fvss.pdf", bbox_inches="tight")
 
-plt.savefig(paths+"fvss.pdf", bbox_inches="tight")
 # %%
 
 from scipy.stats import pearsonr

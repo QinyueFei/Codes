@@ -137,8 +137,7 @@ ax.scatter(xpos, ypos, c='w', edgecolor='k', zorder=3, linewidth=0.9, s=100, mar
 ax.plot(x, y,'--',linewidth=1.5, c='k', alpha=0.8)
 ax.plot(x, y_perp,':',linewidth=1.5, c='k', alpha=0.8)
 
-rec = matplotlib.patches.Rectangle((xpos-size, ypos-size), 10, 11,
-                                   angle=0.0,fill=True, edgecolor='k', facecolor='w', zorder=2)
+rec = matplotlib.patches.Rectangle((xpos-size, ypos-size), 10, 10, angle=0.0,fill=True, edgecolor='k', facecolor='w', zorder=2)
 ax.add_artist(rec)
 Beam = beam(hdu, xpos-size+5,ypos-size+5, 'w', pix_size)
 ax.add_artist(Beam[0])

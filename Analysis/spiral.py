@@ -1,4 +1,7 @@
 # %%
+## Load module
+
+## This file introduce extracting spectrum from a datacube individually.
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -56,9 +59,7 @@ mom2 = hdu.data[0][0]
 # load datacube and calculate the spectrum in km/s
 name = '/media/qyfei/f6e0af82-2ae6-44a3-a033-f66b47f50cf4/ALMA/PG0050+124/CO21_combine/combine/Barolo_fit/PG0050_CO21.combine.all.line.10km.sub.fits'
 CO21_cube = SpectralCube.read(name)
-masked_CO21_cube = CO21_cube.with_spectral_unit(unit='km/s',
-                                                rest_value=217.253*u.GHz,
-                                                velocity_convention='radio') #just for velocity
+masked_CO21_cube = CO21_cube.with_spectral_unit(unit='km/s', rest_value=217.253*u.GHz, velocity_convention='radio') #just for velocity
 # calculate the x-axis
 velo = masked_CO21_cube.spectral_axis
 
@@ -78,8 +79,9 @@ CO21_cube = hdu.data[0]
 # set the coordinates of the region where spectrum is extracted
 yy,xx = np.indices([600, 597],dtype='float')
 
-n = 14 #region number
-off_set = np.array([193,36])
+#n = 0 #region number
+#off_set = np.array([60, -80])
+
 
 xpos, ypos = 299.37+off_set[0], 299.28+off_set[1] #center of region where extracting the spectrum
 ring = 0.36 #units arcsec
@@ -122,31 +124,30 @@ fig = plt.figure(figsize=(8,10))
 ax = WCSAxes(fig, [0.1,0.1,0.8,0.8], aspect='equal',
              transform=transform, coord_meta=coord_meta)
 fig.add_axes(ax)
-im = ax.imshow(mom2, vmin=5, vmax=110, cmap='jet', origin='lower', norm=LogNorm())
+im = ax.imshow(mom0_rms, cmap='jet', origin='lower', norm=LogNorm())
 cp,kw = colorbar.make_axes(ax, pad=0.01, aspect=18, location='top')
 cb = plt.colorbar(im, cax=cp, orientation='horizontal', ticklocation='top')
-cb.set_label(r'$\sigma$ [km/s]')
-ax.contour(mom2, mom2_level, colors=['k'])
+cb.set_label(r'CO(2-1) [Jy/beam$\cdot$km/s]')
+ax.contour(mom0_rms, mom0_level/3, colors=['k'])
 
 #######################
 ## annotate the beam ##
 #######################
-rec = matplotlib.patches.Rectangle((pos_cen[0]-size*3/4, pos_cen[1]-size/2), 10, 10,
-                                   angle=0.0,fill=True, edgecolor='k', facecolor='w', zorder=2)
+rec = matplotlib.patches.Rectangle((pos_cen[0]-size*3/4, pos_cen[1]-size/2), 10, 10, angle=0.0,fill=True, edgecolor='k', facecolor='w', zorder=2)
 ax.add_artist(rec)
 Beam = beam(hdu, pos_cen[0]-size*3/4+5, pos_cen[1]-size/2+5, 'k', pix_size)
 ax.add_artist(Beam[0])
 ## Left part region
-#ax.set_xlim(pos_cen[0]-size/4, pos_cen[0]+size*3/4)
+#ax.set_xlim(pos_cen[0]-size*3/4, pos_cen[0]+size*1/4)
 #ax.set_ylim(pos_cen[1]-size/2, pos_cen[1]+size/2)
 
 ## Right part region
-ax.set_xlim(pos_cen[0]-size*1/4, pos_cen[0]+size*5/4)
-ax.set_ylim(pos_cen[1]-size/2, pos_cen[1]+size*4/4)
+ax.set_xlim(pos_cen[0]-size, pos_cen[0]+size)
+ax.set_ylim(pos_cen[1]-size, pos_cen[1]+size)
 
 circ = matplotlib.patches.Circle((xpos, ypos), rad, fill=False, edgecolor='C1', zorder=2, lw=3, linestyle='--')
 ax.add_artist(circ)
-plt.savefig('/home/qyfei/Desktop/Codes/Analysis/spectrum/region%2i.pdf'%n, bbox_inches='tight')
+#plt.savefig('/home/qyfei/Desktop/Codes/Result/clouds/region_%i.pdf'%n, bbox_inches='tight')
 
 #######################
 ## plot the spectrum ##
@@ -169,10 +170,15 @@ ax1.legend(loc='upper right')
 
 # minimization algorithm
 from astropy.modeling import models
+from astropy.convolution import Gaussian1DKernel, convolve
+
+Kernel_spec = Gaussian1DKernel(0.85)
+
 def Gauss(x_, a_, m_, s_):
     x, a, m, s = x_, a_, m_, s_
     gauss = models.Gaussian1D(a, m, s)
-    return gauss(x)
+    return convolve(gauss(x), Kernel_spec)#gauss(x)
+    
 
 def log_likelihood(theta, x, y, yerr):
     a, m, s = theta
@@ -192,14 +198,31 @@ def log_probability(para, x, y, yerr):
         return -np.inf
     return lp + log_likelihood(para, x, y, yerr)
 
+from scipy.optimize import minimize
+
+np.random.seed(42)
+nll = lambda *args: -log_likelihood(*args)
+initial = np.array([a_g, m_g, 20]) + 0.1 * np.random.randn(3)
+soln = minimize(nll, initial, args=(velo.value, flux.value, sigma))
+a_ml, m_ml, s_ml = soln.x
+
+print("Maximum likelihood estimates:")
+print("a = {0:.3f}".format(a_ml))
+print("m = {0:.3f}".format(m_ml))
+print("s = {0:.3f}".format(s_ml))
+
+
 import emcee
 from multiprocessing import Pool
 
-pos = np.array([a_g, m_g, 20]) + 1e-4 * np.random.randn(32, 3)
+pos = soln.x + 1e-4 * np.random.randn(32, 3)
 nwalkers, ndim = pos.shape
 with Pool() as pool:
     sampler = emcee.EnsembleSampler(nwalkers, ndim, log_probability, args=(velo.value, flux.value, sigma), pool=pool)
-    sampler.run_mcmc(pos, 3000, progress=True)
+    sampler.run_mcmc(pos, 5000, progress=True)
+
+# %%
+## Check fitting
 
 fig, axes = plt.subplots(3, figsize=(10, 7), sharex=True)
 samples = sampler.get_chain()
@@ -221,6 +244,10 @@ import corner
 fig = corner.corner(
     flat_samples, labels=labels#, truths=[]
 )
+# %%
+## Output and save parameters
+
+parameters = []
 
 print("")
 from IPython.display import display, Math
@@ -232,13 +259,32 @@ for i in range(ndim):
     txt = "\mathrm{{{3}}} = {0:.3f}_{{-{1:.3f}}}^{{{2:.3f}}}"
     txt = txt.format(mcmc[1], q[0], q[1], labels[i])
     display(Math(txt))
+    parameters.append([mcmc[1], q[0], q[1]])
 inds = np.random.randint(len(flat_samples), size=100)
 
+## Calculate flux
+from scipy.integrate import trapz
+x_test = np.linspace(velo.value[0], velo.value[-1], 1000)
+model_flux = np.zeros(len(flat_samples))
+for i in range(len(flat_samples)):
+    f = Gauss(x_test, flat_samples[i][0], flat_samples[i][1], flat_samples[i][2])
+    F = trapz(f, x_test)
+    model_flux[i] = F
+
+FLUX = np.percentile(model_flux, [16, 50, 84])
+q = np.diff(FLUX)
+txt = "\mathrm{{{3}}} = {0:.3f}_{{-{1:.3f}}}^{{{2:.3f}}}"
+txt = txt.format(FLUX[1], q[0], q[1], "f")
+display(Math(txt))
+parameters.append([FLUX[1], q[0], q[1]])
+
+#print("\n")
+#print(parameters)
+
+# %%
 #############################
 ## Plot the fitting result ##
 #############################
-
-x_test = np.linspace(velo.value[0], velo.value[-1], 10000)
 
 plt.figure(figsize=(16, 8))
 grid=plt.GridSpec(6,1,wspace=0,hspace=0)
@@ -247,8 +293,8 @@ ax2=plt.subplot(grid[5:])
 ax1.step(velo, flux,'k',label='Spectrum', where='mid')
 for ind in inds:
     sample = flat_samples[ind]
-    ax1.plot(x_test, Gauss(x_test, sample[0], sample[1], sample[2])
-             , "r", alpha=0.1)
+    ax1.plot(x_test, Gauss(x_test, sample[0], sample[1], sample[2]), "r", alpha=0.1)
+
 ax1.plot(x_test, Gauss(x_test, para_fit[0], para_fit[1], para_fit[2]), 'r', label='Fit')
 ax1.fill_between(velo, sigma_p, sigma_m, facecolor='k',hatch='/',linestyle=':',alpha=0.5, label=r'1$\sigma$ noise')
 w50 = 2*np.log(2)*para_fit[2]#+np.sqrt(2*np.log(2))*para_fit[3]
@@ -270,7 +316,7 @@ ax2.set_ylim(-5*sigma, 5*sigma)
 
 ax2.set_xlabel("Velocity [km/s]")
 ax2.set_ylabel("Residual [mJy]")
-plt.savefig('/home/qyfei/Desktop/Codes/Analysis/spectrum/region%2i_spec.pdf'%n, bbox_inches='tight', dpi=300)
+#plt.savefig('/home/qyfei/Desktop/Codes/Result/clouds/region%2i_spec.pdf'%n, bbox_inches='tight', dpi=300)
 
 ## chi2 evaluation
 z2 = (res/sigma)**2
@@ -281,7 +327,7 @@ print(chi2)
 # 
 # Fit the spectra with double Gaussian profile with MCMC
 
-
+from astropy.modeling import models
 # define the profile and minimization algorithm
 
 def Gauss_double(x_, a0_, m0_, s0_, a1_, m1_, s1_):
@@ -414,7 +460,7 @@ ax2.set_ylim(-5*sigma, 5*sigma)
 ax2.set_xlabel("Velocity [km/s]")
 ax2.set_ylabel("Residual [mJy]")
 
-plt.savefig('spectrum/region%2i_spec.pdf'%n, bbox_inches='tight')
+#plt.savefig('spectrum/region%2i_spec.pdf'%n, bbox_inches='tight')
 
 ## chi2 evaluation
 z2 = (res/sigma)**2
@@ -422,3 +468,62 @@ chi2 = np.sum(z2)/(len(z2)-6)
 print(chi2)
 
 # %%
+
+region_x_L = np.array([-28, -30, -40, -43, -133, -108, -85])
+region_y_L = np.array([-20, 0, -10, 5, -35, 42, 63])
+
+region_x_R = np.array([30, 12, 8, 42, 55, 62, 193])
+region_y_R = np.array([20, 45, -45, -58, -55, -48, 36])
+
+region_x = np.append(region_x_L, region_x_R)
+region_y = np.append(region_y_L, region_y_R)
+
+transform = Affine2D()
+transform.scale(pix_size, pix_size)
+transform.translate(-pos_cen[0]*pix_size, -pos_cen[1]*pix_size)
+#transform.translate(-100*pix_size, -100*pix_size)
+transform.rotate(0.)  # radians
+
+# Set up metadata dictionary
+coord_meta = {}
+coord_meta['name'] = 'RA (J2000)', 'DEC (J2000)'
+coord_meta['type'] = 'longitude', 'latitude'
+coord_meta['wrap'] = 180, None
+coord_meta['unit'] = u.arcsec, u.arcsec
+coord_meta['format_unit'] = None, None
+
+fig = plt.figure(figsize=(8,10))
+
+ax = WCSAxes(fig, [0.1,0.1,0.8,0.8], aspect='equal',
+             transform=transform, coord_meta=coord_meta)
+fig.add_axes(ax)
+im = ax.imshow(mom0_rms, cmap='jet', origin='lower', norm=LogNorm())
+cp,kw = colorbar.make_axes(ax, pad=0.01, aspect=18, location='top')
+cb = plt.colorbar(im, cax=cp, orientation='horizontal', ticklocation='top')
+cb.set_label(r'CO(2-1) [Jy/beam$\cdot$km/s]')
+ax.contour(mom0_rms, mom0_level/3, colors=['k'])
+
+#######################
+## annotate the beam ##
+#######################
+rec = matplotlib.patches.Rectangle((pos_cen[0]-size, pos_cen[1]-size), 10, 10,
+                                   angle=0.0,fill=True, edgecolor='k', facecolor='w', zorder=2)
+ax.add_artist(rec)
+Beam = beam(hdu, pos_cen[0]-size+5, pos_cen[1]-size+5, 'k', pix_size)
+ax.add_artist(Beam[0])
+## Left part region
+#ax.set_xlim(pos_cen[0]-size*3/4, pos_cen[0]+size*1/4)
+#ax.set_ylim(pos_cen[1]-size/2, pos_cen[1]+size/2)
+
+## Right part region
+ax.set_xlim(pos_cen[0]-size, pos_cen[0]+size)
+ax.set_ylim(pos_cen[1]-size, pos_cen[1]+size)
+
+
+for i in range(len(region_x)):
+    circ = matplotlib.patches.Circle((pos_cen[0]+region_x[i], pos_cen[1]+region_y[i]), rad, fill=False, edgecolor='C1', zorder=2, lw=1., linestyle='--')
+    ax.add_artist(circ)
+    ax.text(pos_cen[0]+region_x[i], pos_cen[1]+region_y[i], "%i"%i, c="r", fontsize=12, zorder=3)
+
+#plt.savefig('/home/qyfei/Desktop/Codes/Analysis/spectrum/region_mom0_tot.pdf', bbox_inches='tight')
+
