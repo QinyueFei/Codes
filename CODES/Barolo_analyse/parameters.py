@@ -3,6 +3,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 import astropy.units as u
 
+plt.rc('text', usetex=True)
+plt.rc('font', family='dejavuserif', size=25)
+plt.rc('xtick', direction='in', top=True)
+plt.rc('ytick', direction='in', right=True)
+
 def load_parameters(path, folder, file):
     ## Parameters of fixing
     fit_para = np.loadtxt(path+folder+file, dtype='float')
@@ -65,20 +70,20 @@ ax1.legend(loc='upper right')
 
 ## plot velocity profile
 #ax2.errorbar(r_fit, vcirc_fit, yerr=[-evrot1_fit, evrot2_fit], fmt='bo', mfc='none', ms=10, mew=1, elinewidth=1, capsize=0)
-ax2.errorbar(r_fit, vrot_fit, yerr=[-evrot1_fit, evrot2_fit], fmt='co', mfc='none', ms=10, mew=1, elinewidth=1, capsize=0)
+ax2.errorbar(r_fit, vrot_fit, yerr=[-evrot1_fit, evrot2_fit], fmt='bo', mfc='none', ms=10, mew=1, elinewidth=1, capsize=0)
 ax2.set_xlabel('radius [kpc]')
 ax2.set_ylabel('$v_\mathrm{rot}$ [$\mathrm{km\,s^{-1}}$]')
 ax2.set_xlim(-0.1, 3.2)
-ax2.set_ylim(5, 400)
+ax2.set_ylim(5, 420)
 
 ax3 = ax2.twinx()
-ax3.errorbar(r_fit, vdisp_fit, yerr=[-edisp1_fit, edisp2_fit], fmt='rs', mfc='none', ms=10, mew=1, elinewidth=1, capsize=0)
+ax3.errorbar(r_fit, vdisp_fit, yerr=[-edisp1_fit, edisp2_fit], fmt='ro', mfc='none', ms=10, mew=1, elinewidth=1, capsize=0)
 ax3.set_ylabel('$\sigma$ [$\mathrm{km\,s^{-1}}$]')
 ax3.set_ylim(5, 110)
 
-ax3.errorbar(0,0,0, fmt='co', mfc='none', ms=10, mew=1, capsize=0, elinewidth=1, label='$v_\mathrm{rot}$')
+ax3.errorbar(0,0,0, fmt='bo', mfc='none', ms=10, mew=1, capsize=0, elinewidth=1, label='$v_\mathrm{rot}$')
 #ax3.errorbar(0,0,0, fmt='bo', mfc='none', ms=10, mew=1, capsize=0, elinewidth=1, label='$v_\mathrm{circ}$')
-ax3.errorbar(0,0,0, fmt='rs', mfc='none',ms=10, mew=1, capsize=0, elinewidth=1, label='$\sigma$')
+ax3.errorbar(0,0,0, fmt='ro', mfc='none',ms=10, mew=1, capsize=0, elinewidth=1, label='$\sigma$')
 ax3.legend(loc='upper right')
 for ax in axes:
     ax.fill_between([0,0.44], [0], [500], color='b', alpha=0.2)
