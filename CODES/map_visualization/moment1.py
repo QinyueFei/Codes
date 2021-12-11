@@ -6,7 +6,7 @@ from astropy.wcs import WCS
 import matplotlib.colorbar as colorbar
 import astropy.units as u
 from astropy.stats import sigma_clipped_stats
-from map_visualization.load_beam import beam
+from map_visualization.maps import beam
 #%matplotlib inline
 plt.rc('text', usetex=True)
 plt.rc('font', family='dejavuserif', size=25)
