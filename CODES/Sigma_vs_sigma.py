@@ -50,6 +50,7 @@ Sigma_H2[center_region] = Sigma_H2[center_region]*0.62/0.9
 #disp_CO[center_region] = np.sqrt(disp_CO[center_region]**2 - 10**2)
 Sigma_tot = Sigma_H2# + Sigma_s*2/(1+disp_s**2/disp_CO**2) ##constrain the total disk surface density
 Sigma_totr = Sigma_H2r + Sigma_s*2/(1+disp_s**2/disp_CO**2)
+
 # %%
 fig = plt.figure(figsize=(8, 8))
 ax = fig.add_subplot(111)
@@ -157,10 +158,11 @@ evrot1 = ringlog[:,13]
 evrot2 = ringlog[:,14]
 edisp1 = ringlog[:,15]
 edisp2 = ringlog[:,16]
-ax.errorbar(MH2_sd.value, disp, fmt='k*', mfc='none', ms=10, mew=1, zorder=5, alpha=1) #, yerr=[-edisp1, edisp2]
+#ax.errorbar(MH2_sd.value, disp, fmt='k*', mfc='none', ms=10, mew=1, zorder=5, alpha=1) #, yerr=[-edisp1, edisp2]
 
 #plt.show()
-plt.savefig('/home/qyfei/Desktop/Codes/CODES/Physical_values/clouds/disp_sigma_H2_relation_cloud_new.pdf', bbox_inches='tight', dpi=300)
+plt.savefig('/home/qyfei/Desktop/Results/Physical_values/clouds/sigma_Sigma_relation.pdf', bbox_inches='tight', dpi=300)
+
 #N = np.where(disp_CO>2.8*Sigma_H2**0.5)
 # %%
 
