@@ -90,6 +90,6 @@ for ax in axes:
     ax.vlines(0.8, 0, 500, color='b', lw=1, ls='--')
     ax.vlines(2.1, 0, 500, color='b', lw=1, ls='--')
 #plt.show()
-plt.savefig('/home/qyfei/Desktop/Results/Barolo/PG0050/profiles.pdf', bbox_inches='tight', dpi=300)
+#plt.savefig('/home/qyfei/Desktop/Results/Barolo/PG0050/profiles.pdf', bbox_inches='tight', dpi=300)
 
 # %%
