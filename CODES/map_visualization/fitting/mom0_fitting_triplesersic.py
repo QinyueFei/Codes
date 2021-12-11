@@ -89,7 +89,7 @@ comp_1 = [4.000, 0.108, 4.000, 0.392, 190.225]
 comp_2 = [2.550, 0.479, 0.353, 0.689, 33.512]
 fit_results = comp_0 + comp_1 + comp_2
 x, y = np.mgrid[:2*size, :2*size]
-output_dir = "/home/qyfei/Desktop/Codes/CODES/map_visualization/fitting/Results/PG0050/triple_sersic/"
+output_dir = "/home/qyfei/Desktop/Results/map_visualization/fitting/Results/PG0050/triple_sersic/"
 print("Begin mcmc fitting:")
 from multiprocessing import Pool
 import emcee
@@ -138,7 +138,7 @@ fig = corner.corner(
 
 
 # %%
-output_dir = "/home/qyfei/Desktop/Codes/CODES/map_visualization/fitting/Results/PG0050/triple_sersic/"
+output_dir = "/home/qyfei/Desktop/Results/map_visualization/fitting/Results/PG0050/triple_sersic/"
 
 # %%
 #para_out, para_out_m, para_out_p = fit_mcmc(f_mom0, f_err)
@@ -149,7 +149,7 @@ import h5py
 import numpy as np
 import matplotlib.pyplot as plt
 import corner
-output_dir = "/home/qyfei/Desktop/Codes/CODES/map_visualization/fitting/Results/PG0050/triple_sersic/"
+output_dir = "/home/qyfei/Desktop/Results/map_visualization/fitting/Results/PG0050/triple_sersic/"
 
 with h5py.File(output_dir+"tutorial.h5", "r") as f:
     print(list(f.keys()))
@@ -181,6 +181,8 @@ fig = corner.corner(
 #plt.savefig(output_dir+"corner.pdf", bbox_inches="tight")
 
 # %%
+
+cmap = "Greys"
 x, y = np.mgrid[:2*size, :2*size]
 f_bulge = Disk2D(hdu, x, y, para_out[0], para_out[1], para_out[2], para_out[3], para_out[4], para_out[5], para_out[6])
 f_disk = Disk2D(hdu, x, y, para_out[0], para_out[1], para_out[7], para_out[8], para_out[9], para_out[10], para_out[11])
@@ -195,13 +197,13 @@ vmin, vmax = f_err, np.percentile(f_mom0, [99.9])
 fig, axes = plt.subplots(figsize=(18, 7), nrows=1, ncols=3)
 plt.subplots_adjust(wspace=0)
 ax0, ax1, ax2 = axes
-im0 = ax0.imshow(f_mom0, vmin=vmin, vmax=vmax, cmap='jet', origin='lower', norm=LogNorm())
+im0 = ax0.imshow(f_mom0, vmin=vmin, vmax=vmax, cmap=cmap, origin='lower', norm=LogNorm())
 ax0.contour(f_mom0, mom0_level, colors=["k"], linewidths=1.)
 ax0.text(10, 10, "DATA", color="k")
-im1 = ax1.imshow(f_model, vmin=vmin, vmax=vmax, cmap='jet', origin='lower', norm=LogNorm())
+im1 = ax1.imshow(f_model, vmin=vmin, vmax=vmax, cmap=cmap, origin='lower', norm=LogNorm())
 ax1.contour(f_model, mom0_level, colors=["k"], linewidths=1.)
 ax1.text(10, 10, "MODEL", color="k")
-im2 = ax2.imshow(f_total_res, vmin=-0.45, vmax=0.45, cmap='jet', origin='lower')
+im2 = ax2.imshow(f_total_res, vmin=-0.35, vmax=0.35, cmap=cmap, origin='lower')
 ax2.contour(f_total_res, mom0_level, colors=["k"], linewidths=1.)
 
 for ax in axes[:]:
@@ -223,7 +225,7 @@ ax0.add_artist(rec)
 Beam = beam(hdu, 5., 5., 'w', pix_size)
 ax0.add_artist(Beam[0])
 
-#plt.savefig(output_dir+"CO21_mom0_fit_rep.pdf", bbox_inches="tight", dpi=300)
+plt.savefig(output_dir+"CO21_mom0_fit_rep.pdf", bbox_inches="tight", dpi=300)
 
 # %%
 ## Show the region in which residual is large
