@@ -1,3 +1,4 @@
+# %%
 import numpy as np
 import matplotlib.pyplot as plt
 from astropy.io import fits
@@ -27,6 +28,7 @@ def load_PV(path, folder, file):
 pv_maj_obs, pv_min_obs = load_PV(path, folder, file)[0]
 pv_maj_mod, pv_min_mod = load_PV(path, folder, file)[1]
 
+# %%
 from astropy.stats import sigma_clipped_stats
 sigma_PV = sigma_clipped_stats(pv_maj_obs, sigma = 3)[-1]
 PV_level = np.array([-2,2,np.sqrt(8),4, np.sqrt(32),8,np.sqrt(128),16,np.sqrt(512),32,np.sqrt(2048),64])*sigma_PV
@@ -34,7 +36,7 @@ sigma_PV
 
 pix_size = 0.05
 
-fig = plt.figure(figsize=(18, 24))
+fig = plt.figure(figsize=(24, 16))
 
 transform = Affine2D()
 transform.scale(pix_size, 10.78065)
@@ -80,7 +82,7 @@ ax0.hlines(116, 0, 1000, 'k', lw=0.5)
 ax0.vlines(399, 0, 1000, 'k', lw=0.5)
 ax0.set_xlim(304, 504)
 ax0.set_ylim(85, 150)
-ax0.text(309, 88, '$\phi=125\deg$', fontsize=40)
+ax0.text(309, 88, '$\phi=125\deg$', fontsize=30)
 ax0.plot([0,0],[0,0], c='#00008B', label='DATA')
 ax0.plot([0,0],[0,0], c='#B22222', label='MODEL')
 
@@ -88,7 +90,8 @@ ax0.legend(loc='upper right')#bbox_to_anchor=(0.15, -0.95)
 fig.add_axes(ax0)
 fig.add_axes(ax1)
 
-plt.show()
+#plt.show()
 
-#plt.savefig('/home/qyfei/Desktop/Codes/Result/PG0050/Barolo/fit_PV_tot.pdf', bbox_inches='tight', dpi=300)
+#plt.savefig('/home/qyfei/Desktop/Results/Barolo/PG0050/fit_PV.pdf', bbox_inches='tight', dpi=300)
 
+# %%
