@@ -65,6 +65,6 @@ def plot_mom0(path, file):
     #plt.show()
     plt.savefig('/home/qyfei/Desktop/Codes/Result/PG0050/PG0050p0124_mom0.pdf', bbox_inches='tight')
 
-path = "/media/qyfei/f6e0af82-2ae6-44a3-a033-f66b47f50cf4/ALMA/PG0050+124/CO21_combine/combine/line/"
-file = "PG0050_CO21-combine-line-10km-mosaic-mom0-pbcor.fits"
-plot_mom0(path, file)
+#path = "/media/qyfei/f6e0af82-2ae6-44a3-a033-f66b47f50cf4/ALMA/PG0050+124/CO21_combine/combine/line/"
+#file = "PG0050_CO21-combine-line-10km-mosaic-mom0-pbcor.fits"
+#plot_mom0(path, file)
