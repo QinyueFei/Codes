@@ -5,8 +5,7 @@ import matplotlib.pyplot as plt
 from astropy.stats.sigma_clipping import sigma_clipped_stats
 import astropy.units as u
 import matplotlib
-from scipy import integrate
-
+from matplotlib import colorbar
 plt.rc('text', usetex=True)
 plt.rc('font', family='dejavuserif', size=25)
 plt.rc('xtick', direction='in', top=True)
