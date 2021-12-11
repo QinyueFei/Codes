@@ -1,0 +1,24 @@
+#Table 1 
+#Parameters for the KSS
+
+
+#Name	Morph (Type)	log(${M}_{* }$)	log(SFR)	d	D_25	CO ${V}_{\max }$	${\rm{\Delta }}{\text{}}V$	H I W50	H I W90	${{\rm{\Sigma }}}_{* }$	${\sigma }_{\mathrm{CO}}$	${\sigma }#_{\mathrm{ADC}}$	${\sigma }_{{\rm{H}}\gamma }$	[S II]/Halpha	[N II]/Halpha	#
+#		(${M}_{\odot }$)	(${M}_{\odot }$ yr^-1)	(Mpc)	(')	(km s^-1)	(km s^-1)	(km s^-1)	(km s^-1)	(${M}_{\odot }$ pc^-2)	(km s^-1)	(km s^-1)	(km s^-1)			
+IC1199	Sbc (3.7)	10.8	0.2	68.3	1.2	199.0 +or- 5.7	2.6 +or- 4.3	141.8	229.0	189.6	11.1 +or- 5.5	52.1 +or- 26.5	34.6 +or- 9.2	0.19 +or- 0.01	0.39 +or- 0.01	
+NGC2253	Sc (5.8)	10.8	0.5	51.2	1.4	174.2 +or- 7.9	1.1 +or- 7.7	211.0	243.9	205.6	9.2 +or- 2.5	24.9 +or- 37.2	28.0 +or- 3.4	0.17 +or- 0.01	0.37 +or- 0.01	
+NGC2347	Sb (3.1)	11.0	0.5	63.7	1.6	285.6 +or- 2.0	24.1 +or- 0.4	267.7	289.2	336.5	10.1 +or- 4.0	85.9 +or- 5.0	36.6 +or- 5.1	0.18 +or- 0.01	0.38 +or- 0.01	
+NGC2410	Sb (3.0)	11.0	0.5	67.5	2.2	227.2 +or- 5.9	15.3 +or- 5.1	247.3	267.3	198.6	17.6 +or- 7.5	67.7 +or- 16.5	38.2 +or- 12.1	0.20 +or- 0.01	0.47 +or- 0.04	
+NGC3815	Sab (2.0)	10.5	0.0	53.6	1.4	185.8 +or- 5.2	18.8 +or- 3.6	176.5	223.5	215.4	15.1 +or- 5.1	52.9 +or- 8.0	26.9 +or- 3.3	0.20 +or- 0.02	0.38 +or- 0.01	
+NGC4047	Sb (3.2)	10.9	0.6	49.1	1.5	216.3 +or- 2.2	14.3 +or- 0.5	220.3	243.2	296.6	9.5 +or- 2.4	63.2 +or- 9.5	29.5 +or- 3.7	0.16 +or- 0.01	0.35 +or- 0.01	
+NGC4644	Sb (3.1)	10.7	0.1	71.6	1.5	186.1 +or- 5.8	13.5 +or- 2.8	171.0	214.7	132.6	16.6 +or- 8.1	53.2 +or- 10.9	31.3 +or- 7.7	0.16 +or- 0.01	0.40 +or- 0.01	
+NGC4711	SBb (3.2)	10.6	0.1	58.8	1.2	142.8 +or- 10.5	5.8 +or- 0.9	167.3	185.2	121.1	10.0 +or- 4.4	47.9 +or- 37.2	32.9 +or- 7.7	0.18 +or- 0.01	0.36 +or- 0.01	
+#NGC5016	SABb (4.4)	10.5	-0.0	36.9	1.6	178.4 +or- 0.8	17.7 +or- 8.7	187.2	199.1	248.9	11.3 +or- 5.6	56.4 +or- 11.0	26.6 +or- 3.8	0.16 +or- 0.01	0.38 +or- 0.01	
+#NGC5480	Sc (5.0)	10.2	0.2	27.0	1.7	111.4 +or- 6.6	4.8 +or- 5.1	147.7	cdots	180.0	11.2 +or- 3.5	37.1 +or- 41.5	24.0 +or- 2.9	0.20 +or- 0.01	0.33 +or- 0.01	
+#NGC5520	Sb (3.1)	10.1	-0.1	26.7	1.6	162.3 +or- 0.2	15.3 +or- 1.4	158.1	170.1	202.3	13.4 +or- 6.8	60.5 +or- 0.4	26.5 +or- 2.5	0.20 +or- 0.01	0.39 +or- 0.01	
+#NGC5633	Sb (3.2)	10.4	0.2	33.4	1.1	187.5 +or- 9.4	9.1 +or- 2.9	200.6	cdots	396.0	11.3 +or- 2.5	53.3 +or- 23.4	25.1 +or- 1.8	0.17 +or- 0.01	0.37 +or- 0.01	
+NGC5980	Sbc (4.4)	10.8	0.7	59.4	1.6	216.3 +or- 4.4	8.2 +or- 4.8	219.4	248.6	214.8	12.3 +or- 2.3	52.5 +or- 24.0	34.3 +or- 3.8	0.17 +or- 0.01	0.41 +or- 0.01	
+UGC04132	Sbc (4.0)	10.9	1.0	75.4	1.2	238.5 +or- 11.4	16.3 +or- 8.0	255.6	291.5	206.5	15.8 +or- 3.9	79.4 +or- 40.0	33.1 +or- 4.3	0.20 +or- 0.01	0.40 +or- 0.01	
+#UGC05111	Sbc (4.0)	10.8	0.6	98.2	1.5	216.2 +or- 11.9	9.1 +or- 4.4	cdots	cdots	154.4	15.4 +or- 3.6	52.2 +or- 33.5	cdots	cdots	cdots	0.23 +or- 0.02	0.41 +or- 0.02	
+#UGC09067	Sab (2.0)	11.0	0.7	114.5	0.8	211.7 +or- 4.2	1.0 +or- 2.1	212.7	cdots	110.7	14.1 +or- 7.6	12.5 +or- 40.7	29.0 +or- 4.9	0.21 +or- 0.01	0.35 +or- 0.01	
+UGC10384	Sab (1.6)	10.3	0.7	71.8	1.2	187.4 +or- 8.1	14.2 +or- 7.0	180.7	200.9	74.5	18.9 +or- 6.2	45.0 +or- 12.9	35.4 +or- 2.7	0.21 +or- 0.01	0.35 +or- 0.02	
+#Note. The table lists relevant parameters for the KSS galaxies not already listed in Table 3. The morphology and types are from HyperLeda and are listed in Bolatto et al. (2017). Values for ${{\rm{M}}}_{* }$, SFR, distances (d), and the diameter of the 25th magnitude isophote (D_25) are taken from CALIFA and are also found in Bolatto et al. (2017). Errors on log(${M}_{* }$) and log(SFR) are +or-0.1 in the corresponding units. CO ${V}_{\max }$ is the maximum CO rotation velocity, determined by the median of the CO RC at radii larger than twice the CO beam; the error is the standard deviation. Here, ${\rm{\Delta }}{\text{}}V$ is the median difference between CO and Halpha RCs, as described in Section 4. H I W50 and W90 listed here are uncorrected for inclination. All values are taken from the GBT, except for NGC 5480, NGC 5633, and UGC 9067 (see Section 2.4). In this table, ${{\rm{\Sigma }}}_{* }$ are averages of stellar surface density radial profiles from (Utomo et al. 2017), ${\sigma }_{\mathrm{CO}}$ are the velocity dispersions estimated from the beam smearing corrected CO maps (Section 2.1), ${\sigma }_{\mathrm{ADC}}$ are the velocity dispersions estimated from the ADC (Section 5.5.2), and ${\sigma }_{{\rm{H}}\gamma }$ are the median velocity dispersions measured from the Hgamma line; errors are the weighted standard deviations (Section 5.5.1). [S II]/Halpha and [N II]/Halpha are median intensity ratios, where the error is the standard error described in Section 5.6.
