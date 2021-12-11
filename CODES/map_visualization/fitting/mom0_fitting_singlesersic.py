@@ -179,15 +179,12 @@ ax0.add_artist(Beam[0])
 
 # %%
 
-fig, axes = plt.subplots(figsize=(18, 7), nrows=1, ncols=3)
+fig, axes = plt.subplots(figsize=(12, 7), nrows=1, ncols=3)
 plt.subplots_adjust(wspace=0)
 ax0, ax1, ax2 = axes
-im0 = ax0.imshow(f_inner, vmin=-0.086, vmax=8.5, cmap='jet', origin='lower')
-ax0.contour(f_inner, mom0_level, colors=['k'], linewidths=0.5)
+im0 = ax0.imshow(f_model, vmin=-0.086, vmax=8.5, cmap='jet', origin='lower')
+ax0.contour(f_model, mom0_level, colors=['k'], linewidths=0.5)
 ax0.text(10, 10, "INNER", color="w")
-im1 = ax1.imshow(f_outer, vmin=0-0.086, vmax=8.5, cmap='jet', origin='lower')
-ax1.contour(f_outer, mom0_level, colors=['k'], linewidths=0.5)
-ax1.text(10, 10, "OUTER", color="w")
 im2 = ax2.imshow(f_model, vmin=0-0.086, vmax=8.5, cmap='jet', origin='lower')
 ax2.contour(f_model, mom0_level, colors=['k'], linewidths=0.5)
 ax2.text(10, 10, "MODEL", color="w")
