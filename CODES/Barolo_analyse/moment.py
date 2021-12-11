@@ -1,14 +1,16 @@
+# %%
 import numpy as np
 import matplotlib.pyplot as plt
 from astropy.io import fits
+from Barolo_analyse.parameters import load_parameters
 
-from parameters import load_parameters
 obs = 'line/'
 path = '/media/qyfei/f6e0af82-2ae6-44a3-a033-f66b47f50cf4/ALMA/PG0050+124/CO21_combine/combine/'
 folder = "Barolo_fit/output/PG0050+124_best/"
 file = "ringlog2.txt"
 parameters = load_parameters(path, folder, file)
 r_fit, rad_fit, vrot_fit, evrot1_fit, evrot2_fit, vdisp_fit, edisp1_fit, edisp2_fit, inc_fit, pa_fit, vrad_fit, vsys_fit, vrad, xpos,ypos, x, y, y_perp, vcirc_fit, einc1_fit, einc2_fit, epa1_fit, epa2_fit = parameters
+
 # %%
 def mom_compare(path, folder, file):
     obs_moms = []
@@ -69,6 +71,6 @@ cb_res = fig.colorbar(im2, cax=cbar_res, orientation='horizontal')
 cb_res.set_label(r"$V_\mathrm{res}$ [$\mathrm{km\,s^{-1}}$]")
 
 #plt.show()
-#plt.savefig('/home/qyfei/Desktop/Codes/Result/PG0050/Barolo/fit_mom1.pdf', bbox_inches='tight', dpi=300)
+#plt.savefig('/home/qyfei/Desktop/Results/Barolo/PG0050/fit_mom1.pdf', bbox_inches='tight', dpi=300)
 
 # %%
