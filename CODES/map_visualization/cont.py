@@ -54,7 +54,7 @@ def plot_cont(path, file):
     ax.set_ylabel("Dec (J2000)", labelpad=-1.0, fontsize=20)
 
     #plt.show()
-    plt.savefig('/home/qyfei/Desktop/Codes/Result/PG0050/PG0050p0124_cont.pdf', bbox_inches='tight', dpi=300)
+    plt.savefig('/home/qyfei/Desktop/Results/map_visualization/Image/PG0050/PG0050p0124_cont.pdf', bbox_inches='tight', dpi=300)
 
 path = "/media/qyfei/f6e0af82-2ae6-44a3-a033-f66b47f50cf4/ALMA/PG0050+124/CO21_combine/combine/cont/"
 file = "PG0050-cont-mosaic-pbc.fits"
