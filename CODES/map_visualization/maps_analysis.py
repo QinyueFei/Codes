@@ -30,7 +30,7 @@ mom0, wcs, pos_cen, size, pix_size, r, hdu = load_mom0(path, file)
 from Physical_values.surface_density import *
 radius = iso_rad(800, np.array([395, 399]), 0.05, 35, 41)
 radius_model = iso_rad(200, np.array([100, 100]), 0.05, 35, 41)
-output_dir = "/home/qyfei/Desktop/Codes/CODES/map_visualization/Non_para/PG0050/"
+output_dir = "/home/qyfei/Desktop/Results/map_visualization/Non_para/PG0050/"
 distance = np.linspace(0, 3., 21)
 f_r = []
 ef_r = []
