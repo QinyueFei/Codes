@@ -17,7 +17,7 @@ import astropy.constants as c
 from skimage.feature import peak_local_max
 
 plt.rc('text', usetex=True)
-plt.rc('font', family='dejavuserif', size=15)
+plt.rc('font', family='dejavuserif', size=25)
 plt.rc('xtick', direction='in', top=True)
 plt.rc('ytick', direction='in', right=True)
 plt.rcParams['xtick.major.bottom'] = True
@@ -36,8 +36,8 @@ def beam(HDU, XPOS, YPOS, col, cellsize):
 
 # %%
 ## Load data ##
-path = "/media/qyfei/f6e0af82-2ae6-44a3-a033-f66b47f50cf4/NOEMA/w20cf/w20cf_origin/w20cf001/"
-name = "F08238+0752"
+path = "/media/qyfei/f6e0af82-2ae6-44a3-a033-f66b47f50cf4/NOEMA/w20cf/w20cf_origin/w20cf006/"
+name = "F13403-0038"
 file = name + "_CO32.fits"
 file_mom0 = name + "_CO32_mom0.fits"
 
@@ -85,7 +85,7 @@ ax = plt.subplot(projection=wcs[0])
 im = ax.imshow(mom0, cmap='jet', origin='lower')
 cp,kw = colorbar.make_axes(ax, pad=0.01, aspect=18, location='top')
 cb = plt.colorbar(im, cax=cp, orientation='horizontal', ticklocation='top')
-cb.set_label(name+' CO(3-2) [Jy/beam$\cdot$km/s]', fontsize=20)
+cb.set_label(name+' CO(3-2) [Jy/beam$\cdot$km/s]')
 ax.contour(mom0, mom0_level, colors=['k'])
 
 circ = matplotlib.patches.Circle((pos_cen[1], pos_cen[0]), ring, fill=False, edgecolor='m')
@@ -98,13 +98,13 @@ Beam = beam(hdu, pos_cen[1]-size+rec_size/2,pos_cen[0]-size+rec_size/2, 'k', pix
 ax.add_artist(Beam[0])
 ax.set_xlim(pos_cen[1]-size, pos_cen[1]+size)
 ax.set_ylim(pos_cen[0]-size, pos_cen[0]+size)
-ax.set_xlabel("R.A. (J2000)", labelpad=0.5, fontsize=20)
-ax.set_ylabel("Dec (J2000)", labelpad=-1.0, fontsize=20)
+ax.set_xlabel("R.A. (J2000)", labelpad=0.5)
+ax.set_ylabel("Dec (J2000)", labelpad=-1.0)
 
 ax.scatter(512, 512, marker="+", color='w', s=200, zorder=3)
 ax.scatter(pos_cen[1], pos_cen[0], marker='*', color='k', zorder=3)
 
-plt.savefig("/home/qyfei/Desktop/Codes/Result/NOEMA_detection/origin/"+name+"_mom0.pdf", bbox_inches="tight", dpi=300)
+plt.savefig("/home/qyfei/Desktop/Results/Result/NOEMA_detection/origin/"+name+"_mom0.pdf", bbox_inches="tight", dpi=300)
 
 # %%
 ## Extract the spectrum from datacube
@@ -135,7 +135,7 @@ ax1.step(freq, flux, 'k', label='Whole')
 ax1.fill_between(freq, -sigma, sigma, facecolor='none',hatch='/',linestyle=':',alpha=0.5)
 ax1.set_xlabel('Frequency [$\mathrm{GHz}$]')
 ax1.set_ylabel('Flux [$\mathrm{mJy}$]')
-ax1.legend(loc = 'upper left', fontsize=15)
+ax1.legend(loc = 'upper left')
 ax1.grid()
 ax1.set_xlim(freq.min(), freq.max())
 #plt.savefig('/home/qyfei/Desktop/Codes/Result/spectrum.pdf', bbox_inches='tight', dpi=300)
@@ -206,7 +206,7 @@ pos = [a_ml, m_ml, s_ml] + 1e-4 * np.random.randn(32, 3)
 nwalkers, ndim = pos.shape
 with Pool() as pool:
     sampler = emcee.EnsembleSampler(nwalkers, ndim, log_probability, args=(x, y, yerr), pool=pool)
-    sampler.run_mcmc(pos, 5000, progress=True)
+    sampler.run_mcmc(pos, 1000, progress=True)
 
 # %%
 ## Check fitting
@@ -265,7 +265,6 @@ txt = txt.format(Z[1], zs[0], zs[1], "z")
 display(Math(txt))
 parameters.append([Z[1], zs[0], zs[1]])
 
-
 # %%
 #############################
 ## Plot the fitting result ##
@@ -301,7 +300,7 @@ ax2.set_ylim(-5*yerr, 5*yerr)
 
 ax2.set_xlabel("Freq [GHz]")
 ax2.set_ylabel("Residual [mJy]")
-#plt.savefig("/home/qyfei/Desktop/Codes/Result/NOEMA_detection/"+name+"spectrum_freq.pdf", bbox_inches='tight', dpi=300)
+#plt.savefig("/home/qyfei/Desktop/Results/Result/NOEMA_detection/"+name+"spectrum_freq.pdf", bbox_inches='tight', dpi=300)
 
 # %%
 ## chi2 evaluation
@@ -346,7 +345,7 @@ pos = soln.x + 1e-4 * np.random.randn(32, 3)
 nwalkers, ndim = pos.shape
 with Pool() as pool:
     sampler = emcee.EnsembleSampler(nwalkers, ndim, log_probability, args=(x, y, yerr), pool=pool)
-    sampler.run_mcmc(pos, 5000, progress=True)
+    sampler.run_mcmc(pos, 3000, progress=True)
 
 # %%
 
@@ -386,14 +385,14 @@ display(Math(txt))
 parameters.append([FLUX[1], q[0], q[1]])
 parameters.append([Z[1], zs[0], zs[1]])
 
-np.savetxt('/home/qyfei/Desktop/Codes/Result/NOEMA_detection/origin/'+name+'_properties.txt', np.array(parameters))
+np.savetxt('/home/qyfei/Desktop/Results/Result/NOEMA_detection/origin/'+name+'_properties.txt', np.array(parameters))
 
 # %%
 #############################
 ## Plot the fitting result ##
 #############################
 
-plt.figure(figsize=(16, 8))
+plt.figure(figsize=(16, 10))
 grid=plt.GridSpec(6,1,wspace=0,hspace=0)
 ax1=plt.subplot(grid[0:5])
 ax2=plt.subplot(grid[5:])
@@ -413,7 +412,7 @@ ax1.set_xlim(para_fit[1]-10*para_fit[2], para_fit[1]+10*para_fit[2])
 ax1.set_ylim(-3*yerr, para_fit[0]+5*yerr)
 ax1.set_ylabel('Flux density [mJy]')
 ax1.legend(loc='upper left', frameon=False)
-ax1.text(para_fit[1]+5*para_fit[2], para_fit[0], "z=%.3f"%Z[1])#ax1.text(para_fit[1]+5*para_fit[2], para_fit[0]*2/3, "f=%.3f"%abs(FLUX[1]))
+#ax1.text(para_fit[1]+5*para_fit[2], para_fit[0], "z=%.3f"%Z[1])#ax1.text(para_fit[1]+5*para_fit[2], para_fit[0]*2/3, "f=%.3f"%abs(FLUX[1]))
 
 res = y - Gauss(x, para_fit[0], para_fit[1], para_fit[2])
 ax2.step(x, res, 'k', where='mid')
@@ -422,12 +421,11 @@ ax2.hlines(0,-1000,1000,'k',':')
 ax2.set_xlim(para_fit[1]-10*para_fit[2], para_fit[1]+10*para_fit[2])
 ax2.set_ylim(-5*yerr, 5*yerr)
 ax2.set_xlabel("Velocity [$\mathrm{km\,s^{-1}}$]")
-ax2.set_ylabel("Residual [mJy]")
 
 fer = "_aper"
 #fer = "_peak"
 
-plt.savefig("/home/qyfei/Desktop/Codes/Result/NOEMA_detection/origin/"+name+"_spectrum_velo"+fer+".pdf", bbox_inches='tight', dpi=300)
+#plt.savefig("/home/qyfei/Desktop/Results/Result/NOEMA_detection/origin/"+name+"_spectrum_velo"+fer+".pdf", bbox_inches='tight', dpi=300)
 
 # %%
 ## Test result
