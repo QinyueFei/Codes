@@ -225,7 +225,7 @@ ax0.add_artist(rec)
 Beam = beam(hdu, 5., 5., 'w', pix_size)
 ax0.add_artist(Beam[0])
 
-plt.savefig(output_dir+"CO21_mom0_fit_rep.pdf", bbox_inches="tight", dpi=300)
+#plt.savefig(output_dir+"CO21_mom0_fit_rep.pdf", bbox_inches="tight", dpi=300)
 
 # %%
 ## Show the region in which residual is large
@@ -240,25 +240,25 @@ cb = plt.colorbar(im, cax=cp, orientation='horizontal', ticklocation='top')
 cb.set_label("FLUX")
 ax.xaxis.set_ticklabels([])
 ax.yaxis.set_ticklabels([])
-#plt.savefig(output_dir+"model_present.pdf", bbox_inches="tight", dpi=300)
+plt.savefig(output_dir+"model_present.pdf", bbox_inches="tight", dpi=300)
 
 # %%
-
+cmap = "Greys"
 fig, axes = plt.subplots(figsize=(24, 7), nrows=1, ncols=4)
 plt.subplots_adjust(wspace=0)
 ax0, ax1, ax2, ax3 = axes
-im0 = ax0.imshow(f_bulge, vmin=-0.086, vmax=8.5, cmap='jet', origin='lower')
+im0 = ax0.imshow(f_bulge, vmin=0.086, vmax=8.5, cmap=cmap, origin='lower', norm=LogNorm())
 ax0.contour(f_bulge, mom0_level, colors=['k'], linewidths=1)
-ax0.text(10, 10, "DISK", color="w")
-im1 = ax1.imshow(f_disk, vmin=0-0.086, vmax=8.5, cmap='jet', origin='lower')
+ax0.text(10, 10, "DISK", color="k")
+im1 = ax1.imshow(f_disk, vmin=0.086, vmax=8.5, cmap=cmap, origin='lower', norm=LogNorm())
 ax1.contour(f_disk, mom0_level, colors=['k'], linewidths=1)
-ax1.text(10, 10, "CORE", color="w")
-im2 = ax2.imshow(f_bar, vmin=0-0.086, vmax=8.5, cmap='jet', origin='lower')
+ax1.text(10, 10, "CORE", color="k")
+im2 = ax2.imshow(f_bar, vmin=0.086, vmax=8.5, cmap=cmap, origin='lower', norm=LogNorm())
 ax2.contour(f_bar, mom0_level, colors=['k'], linewidths=1)
-ax2.text(10, 10, "BAR", color="w")
-im3 = ax3.imshow(f_model, vmin=0-0.086, vmax=8.5, cmap='jet', origin='lower')
+ax2.text(10, 10, "BAR", color="k")
+im3 = ax3.imshow(f_model, vmin=0.086, vmax=8.5, cmap=cmap, origin='lower', norm=LogNorm())
 ax3.contour(f_model, mom0_level, colors=['k'], linewidths=1)
-ax3.text(10, 10, "MODEL", color="w")
+ax3.text(10, 10, "TOTAL", color="k")
 for ax in axes[:]:
     ax.xaxis.set_ticklabels([])
     ax.yaxis.set_ticklabels([])
@@ -267,6 +267,6 @@ fig.subplots_adjust(right=0.9)
 cbar_ax = fig.add_axes([0.125, 0.1, 0.775, 0.05])
 cb_ax = fig.colorbar(im0, cax=cbar_ax, orientation='horizontal')
 cb_ax.set_label(r"FLUX [$\mathrm{Jy\,beam^{-1}\,km\,s^{-1}}$]")
-#plt.savefig(output_dir+"model.pdf", bbox_inches="tight", dpi=300)
+#plt.savefig(output_dir+"components.pdf", bbox_inches="tight", dpi=300)
 
 # %%
