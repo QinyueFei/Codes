@@ -66,7 +66,7 @@ def Gauss2D(hdu, x, y, dx0_, dy0_, I0_, xstd_, ystd_, phi_):
     pix_size = hdu.header['CDELT1']*u.deg.to('arcsec')
     size = 100
     x0, y0 = size - dx0_/pix_size, size - dy0_/pix_size
-    I0, x_std, y_std, phi = I0_, xstd_/pix_size, ystd_/pix_size, phi_
+    I0, x_std, y_std, phi = I0_, xstd_/pix_size, ystd_/pix_size, -np.radians(phi_)
     function = Gaussian2D(I0, x0, y0, x_std, y_std, phi)
     gauss = function(x, y)
     Ig = scipy_convolve(gauss, kernel_CO, mode='same', method='fft')
