@@ -137,20 +137,20 @@ fig = corner.corner(
 x, y = np.mgrid[:2*size, :2*size]
 f_model = Disk2D(hdu, x, y, para_out[0], para_out[1], para_out[2], para_out[3], para_out[4], para_out[5], para_out[6])
 f_total_res = f_cont - f_model
-
-vmin, vmax = np.percentile(f_cont, [5, 99.99])
+cmap = "Greys"
+vmin, vmax = np.percentile(f_cont, [0.5, 99.99])
 
 fig, axes = plt.subplots(figsize=(18, 7), nrows=1, ncols=3)
 plt.subplots_adjust(wspace=0)
 ax0, ax1, ax2 = axes
-im0 = ax0.imshow(f_cont, vmin=vmin, vmax=vmax, cmap='jet', origin='lower')
-ax0.contour(f_cont, cont_level, colors=['k'], linewidths=0.5)
-ax0.text(10, 10, "DATA", color="w")
-im1 = ax1.imshow(f_model, vmin=vmin, vmax=vmax, cmap='jet', origin='lower')
-ax1.contour(f_model, cont_level, colors=['k'], linewidths=0.5)
-ax1.text(10, 10, "MODEL", color="w")
-im2 = ax2.imshow(f_total_res, vmin=-0.039, vmax=0.039, cmap='jet', origin='lower')
-ax2.contour(f_total_res, cont_level, colors=['k'], linewidths=0.5)
+im0 = ax0.imshow(f_cont, vmin=vmin, vmax=vmax, cmap=cmap, origin='lower')
+ax0.contour(f_cont, cont_level, colors=['k'], linewidths=1)
+ax0.text(10, 10, "DATA", color="k")
+im1 = ax1.imshow(f_model, vmin=vmin, vmax=vmax, cmap=cmap, origin='lower')
+ax1.contour(f_model, cont_level, colors=['k'], linewidths=1)
+ax1.text(10, 10, "MODEL", color="k")
+im2 = ax2.imshow(f_total_res, vmin=-0.06, vmax=0.06, cmap=cmap, origin='lower')
+ax2.contour(f_total_res, cont_level, colors=['k'], linewidths=1)
 
 for ax in axes[:]:
     ax.xaxis.set_ticklabels([])
@@ -159,18 +159,17 @@ for ax in axes[:]:
 fig.subplots_adjust(right=0.9)
 cbar_ax = fig.add_axes([0.125, 0.115, 0.517, 0.05])
 cb_ax = fig.colorbar(im0, cax=cbar_ax, orientation='horizontal')
-cb_ax.set_label(r"FLUX [$\mathrm{Jy\,beam^{-1}\,km\,s^{-1}}$]")
+cb_ax.set_label(r"CONTINUUM [$\mathrm{Jy\,beam^{-1}}$]")
 
 cbar_res = fig.add_axes([0.643, 0.115, 0.257, 0.05])
 cb_res = fig.colorbar(im2, cax=cbar_res, orientation='horizontal')
-cb_res.set_label(r"$f_\mathrm{res}$ [$\mathrm{Jy\,beam^{-1}\,km\,s^{-1}}$]")
+cb_res.set_label(r"$f_\mathrm{res}$ [$\mathrm{Jy\,beam^{-1}}$]")
 
 rec = matplotlib.patches.Rectangle((0, 0), 10, 10,
 angle=0.0,fill=True, edgecolor='k', facecolor='w', zorder=2)
 ax0.add_artist(rec)
 Beam = beam(hdu, 5., 5., 'w', pix_size)
 ax0.add_artist(Beam[0])
-
 #plt.savefig(output_dir+"cont_fit.pdf", bbox_inches="tight", dpi=300)
 
 # %%
