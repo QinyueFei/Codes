@@ -145,6 +145,8 @@ log_prob = f['mcmc']['log_prob']
 get_chain = np.reshape(chain[300:], (700*200, 6))
 
 # %%
+cont_pix = np.pi*0.315*0.279/4/np.log(2)/0.05**2
+
 labels = ["x", "y", "Ie", "xstd", "ystd", "phi"]
 from IPython.display import display, Math
 para_out = []
@@ -159,6 +161,8 @@ for i in range(len(get_chain[1])):
 # %%
 #flat_samples = sampler.get_chain(discard=100, thin=15, flat=True)
 #print(flat_samples.shape)
+
+
 fig = corner.corner(
         get_chain, labels=labels, truths=[para_out[0],para_out[1],para_out[2],para_out[3],para_out[4],para_out[5]]
     )
@@ -207,7 +211,6 @@ ax0.add_artist(Beam[0])
 
 # %%
 from astropy.modeling.models import Sersic2D, Gaussian2D
-
 model_cont = Gaussian2D(5.057, 100, 100, 0.074/0.05, 0.042/0.05, -np.radians(23.447))
 model_cont_image = model_cont(x, y)
 
