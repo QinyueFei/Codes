@@ -115,7 +115,7 @@ for i in range(ndim):
     ax.yaxis.set_label_coords(-0.1, 0.5)
 
 axes[-1].set_xlabel("step number")
-plt.savefig(output_dir+"step.pdf", bbox_inches="tight", dpi=300)
+#plt.savefig(output_dir+"step.pdf", bbox_inches="tight", dpi=300)
 
 # %%
 flat_samples = sampler.get_chain(discard=100, thin=15, flat=True)
@@ -157,7 +157,6 @@ f = h5py.File(output_dir+"tutorial.h5", "r")
 accepted = f['mcmc']['accepted']
 chain = f['mcmc']['chain']
 log_prob = f['mcmc']['log_prob']
-
 get_chain = np.reshape(chain[1000:], (400*500, 17))
 
 # %%
@@ -240,7 +239,7 @@ cb = plt.colorbar(im, cax=cp, orientation='horizontal', ticklocation='top')
 cb.set_label("FLUX")
 ax.xaxis.set_ticklabels([])
 ax.yaxis.set_ticklabels([])
-plt.savefig(output_dir+"model_present.pdf", bbox_inches="tight", dpi=300)
+#plt.savefig(output_dir+"model_present.pdf", bbox_inches="tight", dpi=300)
 
 # %%
 cmap = "Greys"
