@@ -176,9 +176,9 @@ fig = corner.corner(
         get_chain, labels=labels, truths=[para_out[0],para_out[1],para_out[2],para_out[3],para_out[4],para_out[5],para_out[6],para_out[7],para_out[8],para_out[9],para_out[10],para_out[11], para_out[12], para_out[13], para_out[14], para_out[15]]
     )
 #plt.savefig(output_dir+"corner.pdf", bbox_inches="tight")
-
 # %%
-cmap = "Greys"
+
+cmap = "jet"
 x, y = np.mgrid[:2*size, :2*size]
 f_bulge = Gauss2D(hdu, x, y, para_out[0], para_out[1], para_out[2], para_out[3], para_out[4], para_out[5])
 f_disk = Disk2D(hdu, x, y, para_out[0], para_out[1], para_out[6], para_out[7], para_out[8], para_out[9], para_out[10])
@@ -187,8 +187,10 @@ f_bar = Disk2D(hdu, x, y, para_out[0], para_out[1], para_out[11], para_out[12], 
 f_model = f_bulge + f_disk + f_bar
 f_mom0 = f_mom0_test
 f_total_res = f_mom0 - f_model
+#f_mom0[np.where(f_mom0<=2*r_test)] = 0
+
 mom0_level = np.array([-1,1,2,4,8,16,32,64,128])*2*r_test
-vmin, vmax = 10*f_err, np.percentile(f_mom0, [99.9])
+vmin, vmax = 2*r_test, np.percentile(f_mom0, [99.9])
 
 fig, axes = plt.subplots(figsize=(18, 7), nrows=1, ncols=3)
 plt.subplots_adjust(wspace=0)
@@ -229,7 +231,7 @@ ax0.add_artist(Beam[0])
 ## Show the region in which residual is large
 plt.figure(figsize=(8, 10))
 ax = plt.subplot(111)
-im = ax.imshow(f_mom0, vmin=vmin, vmax=vmax, cmap='Greys', origin='lower', norm=LogNorm())
+im = ax.imshow(f_mom0, vmin=vmin, vmax=vmax, cmap=cmap, origin='lower', norm=LogNorm())
 ax.contour(f_mom0, mom0_level, colors=["b"], linewidths=1.)
 ax.contour(f_total_res, mom0_level, colors=["r"], linewidths=1.)
 
@@ -241,20 +243,20 @@ ax.yaxis.set_ticklabels([])
 #plt.savefig(output_dir+"model_present.pdf", bbox_inches="tight", dpi=300)
 
 # %%
-cmap = "Greys"
+
 fig, axes = plt.subplots(figsize=(24, 7), nrows=1, ncols=4)
 plt.subplots_adjust(wspace=0)
 ax0, ax1, ax2, ax3 = axes
-im0 = ax0.imshow(f_bulge, vmin=0.086, vmax=8.5, cmap=cmap, origin='lower', norm=LogNorm())
+im0 = ax0.imshow(f_bulge, vmin=vmin, vmax=vmax, cmap=cmap, origin='lower', norm=LogNorm())
 ax0.contour(f_bulge, mom0_level, colors=['k'], linewidths=1)
 ax0.text(10, 10, "CORE", color="k")
-im1 = ax1.imshow(f_disk, vmin=0.086, vmax=8.5, cmap=cmap, origin='lower', norm=LogNorm())
+im1 = ax1.imshow(f_disk, vmin=vmin, vmax=vmax, cmap=cmap, origin='lower', norm=LogNorm())
 ax1.contour(f_disk, mom0_level, colors=['k'], linewidths=1)
 ax1.text(10, 10, "DISK", color="k")
-im2 = ax2.imshow(f_bar, vmin=0.086, vmax=8.5, cmap=cmap, origin='lower', norm=LogNorm())
+im2 = ax2.imshow(f_bar, vmin=vmin, vmax=vmax, cmap=cmap, origin='lower', norm=LogNorm())
 ax2.contour(f_bar, mom0_level, colors=['k'], linewidths=1)
 ax2.text(10, 10, "BAR", color="k")
-im3 = ax3.imshow(f_model, vmin=0.086, vmax=8.5, cmap=cmap, origin='lower', norm=LogNorm())
+im3 = ax3.imshow(f_model, vmin=vmin, vmax=vmax, cmap=cmap, origin='lower', norm=LogNorm())
 ax3.contour(f_model, mom0_level, colors=['k'], linewidths=1)
 ax3.text(10, 10, "TOTAL", color="k")
 for ax in axes[:]:
@@ -264,7 +266,7 @@ for ax in axes[:]:
 fig.subplots_adjust(right=0.9)
 cbar_ax = fig.add_axes([0.125, 0.1, 0.775, 0.05])
 cb_ax = fig.colorbar(im0, cax=cbar_ax, orientation='horizontal')
-cb_ax.set_label(r"FLUX [$\mathrm{Jy\,beam^{-1}\,km\,s^{-1}}$]")
+cb_ax.set_label(r"FLUX [$\mathrm{K\,km\,s^{-1}}$]")
 #plt.savefig(output_dir+"components.pdf", bbox_inches="tight", dpi=300)
 
 # %%
