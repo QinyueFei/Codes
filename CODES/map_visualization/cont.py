@@ -1,3 +1,4 @@
+# %%
 import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
@@ -58,4 +59,6 @@ def plot_cont(path, file):
 
 path = "/media/qyfei/f6e0af82-2ae6-44a3-a033-f66b47f50cf4/ALMA/PG0050+124/CO21_combine/combine/cont/"
 file = "PG0050-cont-mosaic-pbc.fits"
-plot_cont(path, file)
+cont, wcs, size, pix_size, hdu, pos_cen = load_cont(path, file)
+#plot_cont(path, file)
+# %%

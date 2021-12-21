@@ -52,7 +52,7 @@ def plot_mom0(path, file):
     ax.plot(xbar, ybar, 'k', lw=2, zorder=2.5) #plot the representer bar
     ax.text(xbar[0]+20,ybar[0]+5,'5kpc',size=20, color='k', zorder=2.5)
 
-    rec_size = 10
+    rec_size = 15
     rec = matplotlib.patches.Rectangle((pos_cen[0]-fov, pos_cen[1]-fov), rec_size, rec_size, angle=0.0,fill=True, edgecolor='k', facecolor='w', zorder=2)
     ax.add_artist(rec)
     Beam = beam(hdu, pos_cen[0]-size+rec_size/2,pos_cen[1]-size+rec_size/2, 'k', pix_size)
@@ -62,8 +62,8 @@ def plot_mom0(path, file):
     ax.set_ylim(pos_cen[1]-size,pos_cen[1]+size)
     ax.set_xlabel("R.A. (J2000)", labelpad=0.5, fontsize=20)
     ax.set_ylabel("Dec (J2000)", labelpad=-1.0, fontsize=20)
-    #plt.show()
-    plt.savefig('/home/qyfei/Desktop/Codes/Result/PG0050/PG0050p0124_mom0.pdf', bbox_inches='tight')
+    plt.show()
+    #plt.savefig('/home/qyfei/Desktop/Codes/Result/PG0050/PG0050p0124_mom0.pdf', bbox_inches='tight')
 
 #path = "/media/qyfei/f6e0af82-2ae6-44a3-a033-f66b47f50cf4/ALMA/PG0050+124/CO21_combine/combine/line/"
 #file = "PG0050_CO21-combine-line-10km-mosaic-mom0-pbcor.fits"

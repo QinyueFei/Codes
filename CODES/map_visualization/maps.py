@@ -31,6 +31,20 @@ def load_mom0(path, file):
     size = 200
     # Output map data, coordinate system, galaxy center, size of each pixel, noise level and beam shape
     return mom0, wcs, pos_cen, size, pix_size, r, hdu
+
+def load_mom0_NOEMA(path, file):
+    # mom0, wcs, pos_cen, size, pix_size, r, hdu = load_mom0(path, file)
+    hdu = fits.open(path+file)[0]
+    mom0 = hdu.data[0]
+    wcs = WCS(hdu.header)
+    pos_cen = np.where(mom0 == np.nanmax(mom0))
+    pix_size = hdu.header['CDELT1']*u.deg.to('arcsec')
+    r = sigma_clipped_stats(mom0)[-1]
+    size = 200
+    # Output map data, coordinate system, galaxy center, size of each pixel, noise level and beam shape
+    return mom0, wcs, pos_cen, size, pix_size, r, hdu
+
+
 def plot_mom0(path, file):
     mom0, wcs, pos_cen, size, pix_size, r, hdu = load_mom0(path, file)
     fov = 200 #define the size of the map

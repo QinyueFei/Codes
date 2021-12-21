@@ -190,28 +190,32 @@ def line(deg):
     return pos_cen[1] + np.tan(np.radians(deg))*(x_test - pos_cen[0])
 y0 = line(90+15)            # Molina+ 21 phot
 y1 = line(90+304)           # Molina+ 21 kinetic
-y2 = line(90+141.879)       # Bulge
-y3 = line(90+199.257)       # Disk
-y4 = line(90+33.74)         # Bar
-y5 = line(130+90)           # Kinetic
+y2 = line(90+140.881)       # Disk
+y3 = line(90+208.069)       # Core
+y4 = line(90+33.514)        # Bar
+y5 = line(90+130)           # Kinetic
+y6 = line(90+23.5)          # Continuum
 
-fig = plt.figure(figsize=(8,10))
+fig = plt.figure(figsize=(12, 15))
 ax = plt.subplot(projection=wcs[0,0])
 im = ax.imshow(mom0, cmap='Greys', origin='lower', vmin=r, vmax=128*r, norm=LogNorm())
 
-ax.plot(x_test, y0, 'C0', ls="--", lw=3, label="Molina+ 21 Phot") ##Juan's PA
-ax.plot(x_test, y1, 'C1', ls="--", lw=3, label="Molina+ 21 Kine") ##Juan's PA
-ax.plot(x_test, y2, 'C2', ls="--", lw=3, label="Bulge")
-ax.plot(x_test, y3, 'C3', ls="--", lw=3, label="Disk")
-ax.plot(x_test, y4, 'C4', ls="--", lw=3, label="Bar")
-ax.plot(x_test, y5, 'C5', ls="--", lw=3, label="Kine")
+ax.plot(x_test, y0, 'k', ls=":", lw=3, label="Molina+ 21 Phot.") ##Juan's PA
+ax.plot(x_test, y1, 'k', ls="--", lw=4, label="Molina+ 21 Kine.") ##Juan's PA
+ax.plot(x_test, y2, 'b', ls=":", lw=3, label="Disk")
+ax.plot(x_test, y3, 'r', ls="-.", lw=3, label="Core")
+ax.plot(x_test, y4, 'C1', ls="-.", lw=3, label="Bar")
+ax.plot(x_test, y5, 'grey', ls="--", lw=4, label="Kine.")
+ax.plot(x_test, y6, 'c', ls=":", lw=3, label="Cont.")
+
 ax.legend(loc="upper left", fontsize=20)
 
 
 cp,kw = colorbar.make_axes(ax, pad=0.01, aspect=18, location='top')
 cb = plt.colorbar(im, cax=cp, orientation='horizontal', ticklocation='top')
 cb.set_label('CO(2-1) [$\mathrm{Jy\,beam^{-1}\,km\,s^{-1}}$]')
-ax.contour(mom0, mom0_level, colors=['k'], linewidths=1.5)
+ax.contour(mom0, mom0_level, colors=['b'], linewidths=1.5)
+ax.contour(cont, cont_level/2*3, colors=['r'], linewidths=1.5)
     ## plot the figure
 rec_size = 10
 rec = matplotlib.patches.Rectangle((pos_cen[0]-fov, pos_cen[1]-fov), rec_size, rec_size, angle=0.0,fill=True, edgecolor='k', facecolor='w', zorder=2)
@@ -224,21 +228,27 @@ ax.set_ylim(pos_cen[1]-size,pos_cen[1]+size)
 ax.set_xlabel("R.A. (J2000)", labelpad=0.5, fontsize=20)
 ax.set_ylabel("Dec (J2000)", labelpad=-1.0, fontsize=20)
 
-#plt.savefig(output_dir+"PAs.pdf", bbox_inches="tight", dpi=300)
+plt.savefig(output_dir+"PAs.pdf", bbox_inches="tight", dpi=300)
+
 # %%
+## Load CO map and HST image
 path = "/media/qyfei/f6e0af82-2ae6-44a3-a033-f66b47f50cf4/ALMA/PG0050+124/CO21_combine/combine/line/"
-file = "PG0050_CO21-combine-line-10km-mosaic-mom0-pbcor.fits"
+file = "PG0050_CO21-combine-line-10km-mosaic-mom2.fits"
 hdu2 = fits.open(path+file)[0]
 mom0 = hdu2.data[0][0]
 hdr2 = hdu2.header
 
-dir = "/home/qyfei/Desktop/Codes/CODES/map_visualization/optical/PG0050/"
-file = "PG0050+124_sci_F438W.fits"
+dir = "/home/qyfei/Desktop/Results/map_visualization/optical/PG0050/"
+file = "PG0050+124_sci_F105W.fits"
 #file = "PG0050+124_gal_nfn1cpcp.fits"
 hdu1 = fits.open(dir+file)[0]
 hdr1 = hdu1.header
 hst_image = hdu1.data
 hst_rms = sigma_clipped_stats(hst_image)[-1]
+vmin, vmax = np.percentile(hst_image, [50, 99.99])
+
+plt.figure(figsize=(10, 10))
+plt.imshow(hst_image, origin='lower', cmap='Greys', vmin=vmin, vmax=vmax, norm=LogNorm())
 
 # %%
 input_array = hdu1.data
@@ -247,29 +257,30 @@ output_wcs = WCS(hdr2)[0, 0]
 test, _ = reproject_interp((input_array, input_wcs), output_wcs, shape_out=(800, 800))
 
 # %%
-size = 100
+## Compare the HST image, CO(2-1) moment 0 and 1.3mm continuum map
+output_dir = "/home/qyfei/Desktop/Results/map_visualization/optical/PG0050/"
+size = 200
 pos_cen = [395, 399]
 plot_CO = mom0[pos_cen[0]-size:pos_cen[0]+size, pos_cen[1]-size:pos_cen[1]+size]
 plot_hst = test[pos_cen[0]+43-size:pos_cen[0]+43+size, pos_cen[1]+16-size:pos_cen[1]+16+size]
-vmin, vmax = np.percentile(hst_image, [43, 99.95])
+plot_cont = cont[pos_cen[0]-size:pos_cen[0]+size, pos_cen[1]-size:pos_cen[1]+size]
+
+vmin, vmax = np.percentile(hst_image, [50, 99.99])
 
 fig = plt.figure(figsize=(8,10))
 ax = plt.subplot(projection=output_wcs)
-im = ax.imshow(plot_hst, cmap='Greys', origin='lower', vmin=1e-1, vmax=vmax, norm=LogNorm())
+im = ax.imshow(plot_hst, cmap='Greys', origin='lower', vmin=vmin, vmax=vmax, norm=LogNorm())
 cp,kw = colorbar.make_axes(ax, pad=0.01, aspect=18, location='top')
 cb = plt.colorbar(im, cax=cp, orientation='horizontal', ticklocation='top')
 cb.set_label('HST image')
-ax.contour(plot_CO, mom0_level, colors=['r'], linewidths=0.5)
+ax.contour(plot_CO, [5, 10, 30, 50, 100], colors=['b'], linewidths=1.)
+ax.contour(plot_cont, cont_level/2*3, colors=['r'], linewidths=1.)
 
 #ax.set_xlim(pos_cen[0]-size,pos_cen[0]+size)
 #ax.set_ylim(pos_cen[1]-size,pos_cen[1]+size)
 
 ax.set_xlabel("R.A. (J2000)", labelpad=0.5, fontsize=20)
 ax.set_ylabel("Dec (J2000)", labelpad=-1.0, fontsize=20)
-#plt.savefig(output_dir+"overplot.pdf", bbox_inches="tight", dpi=300)
-
-# %%
-
-hdr2
+#plt.savefig(output_dir+"overplot_mom2.pdf", bbox_inches="tight", dpi=300)
 
 # %%
