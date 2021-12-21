@@ -142,7 +142,7 @@ def bounds_a():
 Rs = np.linspace(0, 10., 100)
 vs2 = np.zeros(len(Rs))
 vs2e = np.zeros(len(Rs))
-
+'''
 qs = [0., 0.2, 0.4, 0.6, 0.8, 1.0]
 #ns = [0.5, 1., 2., 3., 4., 5.]
 #q = 1.
@@ -156,7 +156,7 @@ for j in range(len(qs)):
         vs2e[i] =integrate.nquad(f, [bounds_r, bounds_a])[1]
     vs = np.sqrt(vs2)
     vc.append(vs)
-
+'''
 # %%
 ## Estimate the velocity through mass
 def M(s): 
@@ -196,7 +196,7 @@ ax.set_ylim(0, 150)
 ax.set_xlabel("$R/R_e$")
 ax.set_ylabel("$V_c$ [km/s]")
 plt.legend()
-plt.savefig("/home/qyfei/Desktop/Codes/CODES/Dynamics/RCs_spherical.pdf", bbox_inches="tight", dpi=300)
+#plt.savefig("/home/qyfei/Desktop/Codes/CODES/Dynamics/RCs_spherical.pdf", bbox_inches="tight", dpi=300)
 
 # %%
 ## Load parameters
