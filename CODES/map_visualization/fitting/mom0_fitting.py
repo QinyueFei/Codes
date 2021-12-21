@@ -207,4 +207,4 @@ ax0.add_artist(rec)
 Beam = beam(hdu, 5., 5., 'w', pix_size)
 ax0.add_artist(Beam[0])
 
-plt.savefig('/home/qyfei/Desktop/Codes/Result/PG0050/CO21_mom0_fit.pdf', bbox_inches='tight', dpi=300)
+#plt.savefig('/home/qyfei/Desktop/Codes/Result/PG0050/CO21_mom0_fit.pdf', bbox_inches='tight', dpi=300)

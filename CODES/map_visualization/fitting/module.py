@@ -20,6 +20,13 @@ def kernel(hdu):
     kernel_CO = Gaussian2DKernel(x_stddev = xstd, y_stddev = ystd, theta = pa, mode='center')
     return kernel_CO
 
+def noise(hdu, x, y, intr):
+    kernel_CO = kernel(hdu)
+    #pix_size = hdu.header['CDELT1']*u.deg.to('arcsec')
+    I_n = intr * np.random.randn(len(x), len(y))
+    func = scipy_convolve(I_n, kernel_CO, mode='same', method='fft')
+    return func
+
 def Disk2D(hdu, x, y, dx0, dy0, I_e, R_e, n_, ellip_, theta_):    
     ## This function is used to describe a galaxy whose morphology can be well described by a Sersic profile
     ## dx0, dy0 are offset from the galaxy center, in units of arcsec
@@ -71,3 +78,4 @@ def Gauss2D(hdu, x, y, dx0_, dy0_, I0_, xstd_, ystd_, phi_):
     gauss = function(x, y)
     Ig = scipy_convolve(gauss, kernel_CO, mode='same', method='fft')
     return Ig
+
