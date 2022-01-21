@@ -34,6 +34,7 @@ def load_cont(path, file):
 #############################
 def plot_cont(path, file):
     cont, wcs, size, pix_size, hdu, pos_cen = load_cont(path, file)
+    size = 50
     rms = 1.3e-02#sigma_clipped_stats(cont, sigma=3)[-1]
     cont_level = np.array([-1,1,2,4,8,16,32])*3*rms
     fig = plt.figure(figsize=(8,10))
@@ -42,7 +43,7 @@ def plot_cont(path, file):
     cp,kw = colorbar.make_axes(ax, pad=0.01, aspect=18, location='top')
     cb = plt.colorbar(im, cax=cp, orientation='horizontal', ticklocation='top')
     cb.set_label(r'cont [mJy$\cdot$beam$^{-1}$]')
-    ax.contour(cont, cont_level, colors=['k'], linewidths=0.5)
+    ax.contour(cont, cont_level, colors=['k'], linewidths=1.)
 
     rec = matplotlib.patches.Rectangle((pos_cen[0]-size, pos_cen[1]-size), 10, 10, angle=0.0,fill=True, edgecolor='k', facecolor='w', zorder=2.5)
     ax.add_artist(rec)
@@ -55,10 +56,11 @@ def plot_cont(path, file):
     ax.set_ylabel("Dec (J2000)", labelpad=-1.0, fontsize=20)
 
     #plt.show()
-    plt.savefig('/home/qyfei/Desktop/Results/map_visualization/Image/PG0050/PG0050p0124_cont.pdf', bbox_inches='tight', dpi=300)
+    plt.savefig('/home/qyfei/Desktop/Results/map_visualization/Image/PG0050/PG0050p0124_cont_show.pdf', bbox_inches='tight', dpi=300)
 
 path = "/media/qyfei/f6e0af82-2ae6-44a3-a033-f66b47f50cf4/ALMA/PG0050+124/CO21_combine/combine/cont/"
 file = "PG0050-cont-mosaic-pbc.fits"
 cont, wcs, size, pix_size, hdu, pos_cen = load_cont(path, file)
-#plot_cont(path, file)
+plot_cont(path, file)
+
 # %%

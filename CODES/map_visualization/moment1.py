@@ -28,6 +28,7 @@ def load_mom1(path, file):
     size = 200
     pix_size = hdu.header['CDELT1']*u.deg.to('arcsec')
     return mom1, wcs, size, pix_size, hdu, pos_cen
+    
 def plot_mom1(path, file):
     mom1, wcs, size, pix_size, hdu, pos_cen = load_mom1(path, file)
 
