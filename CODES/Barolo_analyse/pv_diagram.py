@@ -82,11 +82,11 @@ ax0.hlines(116, 0, 1000, 'k', lw=0.5)
 ax0.vlines(399, 0, 1000, 'k', lw=0.5)
 ax0.set_xlim(304, 504)
 ax0.set_ylim(85, 150)
-ax0.text(309, 88, '$\phi=125\deg$', fontsize=30)
+ax0.text(309, 88, '$\phi=125\deg$', fontsize=40)
 ax0.plot([0,0],[0,0], c='#00008B', label='DATA')
 ax0.plot([0,0],[0,0], c='#B22222', label='MODEL')
 
-ax0.legend(loc='upper right')#bbox_to_anchor=(0.15, -0.95)
+ax0.legend(loc='upper right', fontsize=40)#bbox_to_anchor=(0.15, -0.95)
 fig.add_axes(ax0)
 fig.add_axes(ax1)
 
