@@ -119,7 +119,7 @@ def fit_mcmc(f_mom0_, f_err_):
     return para_out, para_out_m, para_out_p
 
 # %%
-output_dir = "/home/qyfei/Desktop/Codes/CODES/map_visualization/fitting/Results/PG0050/double_sersic/"
+output_dir = "/home/qyfei/Desktop/Results/map_visualization/fitting/Results/PG0050/double_sersic/"
 
 # %%
 #para_out, para_out_m, para_out_p = fit_mcmc(f_mom0, f_err)
@@ -130,7 +130,7 @@ import h5py
 import numpy as np
 import matplotlib.pyplot as plt
 import corner
-output_dir = "/home/qyfei/Desktop/Codes/CODES/map_visualization/fitting/Results/PG0050/double_sersic/"
+output_dir = "/home/qyfei/Desktop/Results/map_visualization/fitting/Results/PG0050/double_sersic/"
 
 with h5py.File(output_dir+"tutorial.h5", "r") as f:
     print(list(f.keys()))
@@ -203,6 +203,7 @@ Beam = beam(hdu, 5., 5., 'w', pix_size)
 ax0.add_artist(Beam[0])
 
 #plt.savefig(output_dir+"CO21_mom0_fit.pdf", bbox_inches="tight", dpi=300)
+
 # %%
 plt.figure(figsize=(8, 10))
 ax = plt.subplot(111)

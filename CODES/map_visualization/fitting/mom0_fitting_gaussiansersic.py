@@ -158,7 +158,7 @@ log_prob = f['mcmc']['log_prob']
 get_chain = np.reshape(chain[1000:], (200*1000, 16))
 
 # %%
-#labels = ["$x_0$", "$y_0$", "Ie", "Re", "n", "e", "t", "Ie1", "Re1", "n1", "e1", "t1", "Ie2", "Re2", "n2", "e2", "t2"]
+labels = ["$x_0$", "$y_0$", "I0", "xstd", "ystd", "phi", "Ie1", "Re1", "n1", "e1", "t1", "Ie2", "Re2", "n2", "e2", "t2"]
 from IPython.display import display, Math
 para_out = []
 for i in range(len(get_chain[1])):
@@ -186,22 +186,22 @@ f_bar = Disk2D(hdu, x, y, para_out[0], para_out[1], para_out[11], para_out[12], 
 
 f_model = f_bulge + f_disk + f_bar
 f_mom0 = f_mom0_test
-f_total_res = f_mom0 - f_model
+f_total_res = f_mom0_test - f_model
 #f_mom0[np.where(f_mom0<=2*r_test)] = 0
 
 mom0_level = np.array([-1,1,2,4,8,16,32,64,128])*2*r_test
-vmin, vmax = 2*r_test, np.percentile(f_mom0, [99.9])
+vmin, vmax = 2*r, np.percentile(f_mom0, [99.999])
 
 fig, axes = plt.subplots(figsize=(18, 7), nrows=1, ncols=3)
 plt.subplots_adjust(wspace=0)
 ax0, ax1, ax2 = axes
-im0 = ax0.imshow(f_mom0, vmin=vmin, vmax=vmax, cmap=cmap, origin='lower', norm=LogNorm())
+im0 = ax0.imshow(f_mom0, vmin=-vmin, vmax=vmax, cmap=cmap, origin='lower')
 ax0.contour(f_mom0, mom0_level, colors=["k"], linewidths=1.)
-ax0.text(10, 10, "DATA", color="k")
-im1 = ax1.imshow(f_model, vmin=vmin, vmax=vmax, cmap=cmap, origin='lower', norm=LogNorm())
+ax0.text(10, 10, "DATA", color="w")
+im1 = ax1.imshow(f_model, vmin=-vmin, vmax=vmax, cmap=cmap, origin='lower')
 ax1.contour(f_model, mom0_level, colors=["k"], linewidths=1.)
-ax1.text(10, 10, "MODEL", color="k")
-im2 = ax2.imshow(f_total_res, vmin=-119, vmax=119, cmap=cmap, origin='lower')
+ax1.text(10, 10, "MODEL", color="w")
+im2 = ax2.imshow(f_total_res, vmin=-110, vmax=110, cmap=cmap, origin='lower')
 ax2.contour(f_total_res, mom0_level, colors=["k"], linewidths=1.)
 
 for ax in axes[:]:
@@ -212,12 +212,12 @@ fig.subplots_adjust(right=0.9)
 cbar_ax = fig.add_axes([0.125, 0.115, 0.517, 0.05])
 cb_ax = fig.colorbar(im0, cax=cbar_ax, orientation='horizontal')
 #cb_ax.set_label(r"$I_\mathrm{CO(2-1)}$ [$\mathrm{Jy\,beam^{-1}\,km\,s^{-1}}$]")
-cb_ax.set_label(r"$I_\mathrm{CO(2-1)}$ [$\mathrm{K\,km\,s^{-1}}$]")
+cb_ax.set_label(r"$I_\mathrm{CO(2-1)}$ [$\mathrm{Jy\,beam^{-1}\,km\,s^{-1}}$]")
 
 cbar_res = fig.add_axes([0.643, 0.115, 0.257, 0.05])
 cb_res = fig.colorbar(im2, cax=cbar_res, orientation='horizontal')
 #cb_res.set_label(r"$I_\mathrm{res}$ [$\mathrm{Jy\,beam^{-1}\,km\,s^{-1}}$]")
-cb_res.set_label(r"$I_\mathrm{res}$ [$\mathrm{K\,km\,s^{-1}}$]")
+cb_res.set_label(r"$I_\mathrm{res}$ [$\mathrm{Jy\,beam^{-1}\,km\,s^{-1}}$]")
 
 rec = matplotlib.patches.Rectangle((0, 0), 10, 10,
 angle=0.0,fill=True, edgecolor='k', facecolor='w', zorder=2)
@@ -225,7 +225,7 @@ ax0.add_artist(rec)
 Beam = beam(hdu, 5., 5., 'w', pix_size)
 ax0.add_artist(Beam[0])
 
-#plt.savefig(output_dir+"CO_surface_density_fit.pdf", bbox_inches="tight", dpi=300)
+#plt.savefig(output_dir+"Intensity_fit.pdf", bbox_inches="tight", dpi=300)
 
 # %%
 ## Show the region in which residual is large
@@ -269,4 +269,12 @@ cb_ax = fig.colorbar(im0, cax=cbar_ax, orientation='horizontal')
 cb_ax.set_label(r"FLUX [$\mathrm{K\,km\,s^{-1}}$]")
 #plt.savefig(output_dir+"components.pdf", bbox_inches="tight", dpi=300)
 
+# %%
+L_bulge = (np.nansum(f_bulge)*(0.05*u.arcsec/Planck15.arcsec_per_kpc_proper(0.061))**2*1e6).value
+from astropy.modeling.models import Gaussian2D
+f_gaussian_bulge = Gaussian2D(para_out[2], 100, 100, para_out[3]/0.05, para_out[4]/0.05, np.radians(para_out[5]))
+F_gaussian_bulge = f_gaussian_bulge(x, y)
+L_bulge = np.nansum(F_gaussian_bulge)*(0.05*u.arcsec/Planck15.arcsec_per_kpc_proper(0.061))**2*1e6
+L_bulge
+np.sqrt(G*L_bulge.value/r_fit)
 # %%
