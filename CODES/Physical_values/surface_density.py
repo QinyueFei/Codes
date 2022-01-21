@@ -5,9 +5,9 @@ import astropy.units as u
 import matplotlib.pyplot as plt
 from map_visualization.maps import *
 
-def surface_density(path_, file_):
+def surface_density(path_, file_, alpha_CO_):
     path, file = path_, file_
-    alpha_CO = 1.5      #The conversion factor between flux and mass
+    alpha_CO = alpha_CO_      #The conversion factor between flux and mass, normalize to 1.0
     z = 0.06115          #The redshift of the galaxy
     DL = Planck15.luminosity_distance(z) # The luminosity distance
     nu_obs = 230.58/(1+z) #The observation frequency
@@ -32,13 +32,13 @@ def surface_density(path_, file_):
     return Sigma_H2.value, Sigma_H2r.value    
     
 
-def iso_rad(size_, pos_cen_, pix_size_, PA_, inc_):
-    size, pos_cen, pix_size, PA, inc = size_, pos_cen_, pix_size_, PA_, inc_
+def iso_rad(sizex_, sizey_, pos_cen_, pix_size_, PA_, inc_):
+    sizex, sizey, pos_cen, pix_size, PA, inc = sizex_, sizey_, pos_cen_, pix_size_, PA_, inc_
     # This function calculate the radius between each pixel and the kinematic center
     # size, pos_cen, pix_size are adopted from observation, which are map size, coordinates of galaxy center and size of each pixel
     # PA, inc are position angle and inclination angle
     z = 0.06115
-    yy,xx = np.indices([size, size],dtype='float')
+    yy,xx = np.indices([sizey, sizex],dtype='float')
     coordinates_xx = (xx-pos_cen[1])*np.cos(PA*u.deg).value + (yy-pos_cen[0])*np.sin(PA*u.deg).value
     coordinates_yy = -(xx-pos_cen[1])*np.sin(PA*u.deg).value + (yy-pos_cen[0])*np.cos(PA*u.deg).value
     Radius_pixel = np.sqrt(coordinates_xx**2 + coordinates_yy**2/(np.cos(inc*u.deg).value)**2)
