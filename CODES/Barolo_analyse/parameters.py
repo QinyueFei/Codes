@@ -47,6 +47,9 @@ folder = "Barolo_fit/output/PG0050+124_best/"
 file = "ringlog2.txt"
 parameters = load_parameters(path, folder, file)
 r_fit, rad_fit, vrot_fit, evrot1_fit, evrot2_fit, vdisp_fit, edisp1_fit, edisp2_fit, inc_fit, pa_fit, vrad_fit, vsys_fit, vrad, xpos,ypos, x, y, y_perp, vcirc_fit, einc1_fit, einc2_fit, epa1_fit, epa2_fit = parameters
+folder = "Barolo_fit/output/PG0050+124_trash/"
+file = "ringlog2.txt"
+r_fit = np.loadtxt(path+folder+file)[:,0]
 
 
 ## Plot the inclination and position angle
@@ -54,42 +57,68 @@ fig, axes = plt.subplots(figsize=(8,16), nrows=2, ncols=1)
 plt.subplots_adjust(hspace=0)
 
 ax2, ax0 = axes
-ax0.errorbar(r_fit, pa_fit, yerr=[-epa1_fit, epa2_fit], fmt='mo', mfc='none', ms=10, mew=1, elinewidth=1, capsize=0.)
+ax0.errorbar(r_fit, pa_fit, yerr=[-epa1_fit, epa2_fit], fmt='mo', mfc='m', ms=10, mew=1, elinewidth=1, capsize=5.)
 ax0.set_ylabel('$\phi$ [deg]')
-ax0.set_xlim(-0.1, 3.2)
+ax0.set_xlim(1e-4, 3.0-1e-4)
 ax0.set_ylim(80, 150)
 ax0.set_xlabel('Radius [kpc]')
 ax1 = ax0.twinx()
-ax1.errorbar(r_fit, inc_fit, yerr=[-einc1_fit, einc2_fit], fmt='gs', mfc='none', ms=10, mew=1, elinewidth=1, capsize=0)
+ax1.errorbar(r_fit, inc_fit, yerr=[-einc1_fit, einc2_fit], fmt='gs', mfc='g', ms=10, mew=1, elinewidth=1, capsize=5)
 ax1.set_ylabel('$i$ [deg]')
 ax1.set_ylim(30, 80)
 
-ax1.errorbar(0,0,0, fmt='mo', mfc='none', ms=10, mew=1, elinewidth=1, capsize=0, label='$\phi$')
-ax1.errorbar(0,0,0, fmt='gs', mfc='none',ms=10, mew=1, elinewidth=1, capsize=0, label='$i$')
+ax1.errorbar(0,0,0, fmt='mo', mfc='m', ms=10, mew=1, elinewidth=1, capsize=5, label='$\phi$')
+ax1.errorbar(0,0,0, fmt='gs', mfc='g',ms=10, mew=1, elinewidth=1, capsize=5, label='$i$')
 ax1.legend(loc='upper right')
 
 ## plot velocity profile
 #ax2.errorbar(r_fit, vcirc_fit, yerr=[-evrot1_fit, evrot2_fit], fmt='bo', mfc='none', ms=10, mew=1, elinewidth=1, capsize=0)
-ax2.errorbar(r_fit, vrot_fit, yerr=[-evrot1_fit, evrot2_fit], fmt='bo', mfc='none', ms=10, mew=1, elinewidth=1, capsize=0)
+ax2.errorbar(r_fit, vrot_fit, yerr=[-evrot1_fit, evrot2_fit], fmt='bo', mfc='b', ms=10, mew=1, elinewidth=1, capsize=5)
 ax2.set_xlabel('radius [kpc]')
 ax2.set_ylabel('$v_\mathrm{rot}$ [$\mathrm{km\,s^{-1}}$]')
-ax2.set_xlim(-0.1, 3.2)
+ax2.set_xlim(1e-4, 3.0-1e-4)
 ax2.set_ylim(5, 420)
 
 ax3 = ax2.twinx()
-ax3.errorbar(r_fit, vdisp_fit, yerr=[-edisp1_fit, edisp2_fit], fmt='ro', mfc='none', ms=10, mew=1, elinewidth=1, capsize=0)
+ax3.errorbar(r_fit, vdisp_fit, yerr=[-edisp1_fit, edisp2_fit], fmt='ro', mfc='r', ms=10, mew=1, elinewidth=1, capsize=5)
 ax3.set_ylabel('$\sigma$ [$\mathrm{km\,s^{-1}}$]')
 ax3.set_ylim(5, 110)
 
-ax3.errorbar(0,0,0, fmt='bo', mfc='none', ms=10, mew=1, capsize=0, elinewidth=1, label='$v_\mathrm{rot}$')
+ax3.errorbar(0,0,0, fmt='bo', mfc='b', ms=10, mew=1, capsize=5, elinewidth=1, label='$v_\mathrm{rot}$')
 #ax3.errorbar(0,0,0, fmt='bo', mfc='none', ms=10, mew=1, capsize=0, elinewidth=1, label='$v_\mathrm{circ}$')
-ax3.errorbar(0,0,0, fmt='ro', mfc='none',ms=10, mew=1, capsize=0, elinewidth=1, label='$\sigma$')
+ax3.errorbar(0,0,0, fmt='ro', mfc='r',ms=10, mew=1, capsize=5, elinewidth=1, label='$\sigma$')
 ax3.legend(loc='upper right')
 for ax in axes:
-    ax.fill_between([0,0.44], [0], [500], color='b', alpha=0.2)
-    ax.vlines(0.8, 0, 500, color='b', lw=1, ls='--')
-    ax.vlines(2.1, 0, 500, color='b', lw=1, ls='--')
+    ax.fill_between([0,0.43], [0], [500], color='k', hatch='/', alpha=0.2)
+    ax.vlines(0.43, 0, 500, color='k', lw=1, ls='--')
+    ax.vlines(0.86, 0, 500, color='k', lw=1, ls='--')
+    ax.vlines(2.10, 0, 500, color='k', lw=1, ls='--')
 #plt.show()
 #plt.savefig('/home/qyfei/Desktop/Results/Barolo/PG0050/profiles.pdf', bbox_inches='tight', dpi=300)
 
+# %%
+fig, axes = plt.subplots(figsize=(6, 6), nrows=1, ncols=1)
+ax2 = axes
+
+ax2.errorbar(r_fit, vrot_fit, yerr=[-evrot1_fit, evrot2_fit], fmt='bo', mfc='none', ms=10, mew=2, elinewidth=2, capsize=5)
+ax2.set_xlabel('Radius [kpc]')
+ax2.set_ylabel('$V_\mathrm{rot}$ [$\mathrm{km\,s^{-1}}$]')
+ax2.set_xlim(0, 3.1)
+ax2.set_ylim(5, 350)
+
+#ax3 = ax2.twinx()
+ax2.errorbar(r_fit, vdisp_fit, yerr=[-edisp1_fit, edisp2_fit], fmt='ro', mfc='none', ms=10, mew=2, elinewidth=2, capsize=5)
+#ax3.set_ylabel('$\sigma$ [$\mathrm{km\,s^{-1}}$]')
+#ax3.set_ylim(5, 110)
+
+ax2.errorbar(0,-50,0, fmt='bo', mfc='none', ms=10, mew=2, capsize=5, elinewidth=2, label='$v_\mathrm{rot}$')
+#ax3.errorbar(0,0,0, fmt='bo', mfc='none', ms=10, mew=1, capsize=0, elinewidth=1, label='$v_\mathrm{circ}$')
+ax2.errorbar(0,-50,0, fmt='ro', mfc='none',ms=10, mew=2, capsize=5, elinewidth=2, label='$\sigma$')
+ax2.legend(loc='upper left')
+ax2.fill_between([0,0.44], [0], [500], color='b', alpha=0.2)
+ax2.vlines(0.8, 0, 500, color='b', lw=1, ls='--')
+ax2.vlines(2.1, 0, 500, color='b', lw=1, ls='--')
+ax2.hlines(9.5, 0, 10, color='k', lw=1, ls='--')
+
+#plt.savefig("/home/qyfei/Desktop/Results/Barolo/PG0050/RC.pdf", bbox_inches="tight", dpi=300)
 # %%
