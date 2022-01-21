@@ -380,6 +380,8 @@ flat_samples = sampler.get_chain(discard=100, thin=15, flat=True)
 # %%
 import h5py
 import corner
+output_dir = "/home/qyfei/Desktop/Results/SED_fitting/PG0050/"
+labels = ["a", "b", "Td", "Md", "beta"]
 
 f = h5py.File(output_dir+"tutorial.h5", "r")
 accepted = f['mcmc']['accepted']
@@ -428,7 +430,7 @@ display(Math(txt))
 
 # %%
 
-for i in range(ndim):
+for i in range(5):
     mcmc = np.percentile(get_chain[:, i], [16, 50, 84])
     q = np.diff(mcmc)
     txt = "\mathrm{{{3}}} = {0:.3f}_{{-{1:.3f}}}^{{{2:.3f}}}"
@@ -475,8 +477,11 @@ display(Math(txt))
 f_exp = MBB(230.58, 31.72, 7.992, 1.901)
 f_cen = 0.994
 SFR_cen = f_cen/f_exp*SFR
-SFR_cen
+SFR_cen_err1 = -(f_cen-0.024)/f_exp*(SFR+0.347) + SFR_cen
+SFR_cen_err2 = (f_cen+0.024)/f_exp*(SFR-0.347) - SFR_cen
 
-Sigma_cen = SFR_cen*u.Unit("M_sun/yr")/0.1818/u.Unit("kpc^2")
-
+Sigma_cen = SFR_cen*u.Unit("M_sun/yr")/area#/u.Unit("kpc^2")
+Sigma_cen_err1 = SFR_cen_err1*u.Unit("M_sun/yr")/area#0.0388/u.Unit("kpc^2")
+Sigma_cen_err2 = SFR_cen_err2*u.Unit("M_sun/yr")/area#0.0388/u.Unit("kpc^2")
+Sigma_cen
 # %%
