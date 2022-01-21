@@ -37,10 +37,10 @@ def beam(HDU, XPOS, YPOS, col, cellsize):
 
 # %%
 # Load data 
-path = "/media/qyfei/f6e0af82-2ae6-44a3-a033-f66b47f50cf4/NOEMA/w20cf/w20cf_origin/w20cf006/"
-name = "F13403-0038"
-file = name + "_cont.fits"
-file_mom0 = name + "_CO32_mom0.fits"
+path = "/media/qyfei/f6e0af82-2ae6-44a3-a033-f66b47f50cf4/NOEMA/w20cf/w20cf_taper/w20cf002/"
+name = "F08542+1920"
+file = name + "_cont_taper.fits"
+file_mom0 = name + "_CO32_taper_mom0.fits"
 
 hdu = fits.open(path+file)[0]
 cont = hdu.data[0]*1e3 #convert to mJy/beam
@@ -74,7 +74,7 @@ cont_level = np.array([-2,2,3,4,5,6,7,8])*cont_rms
 fig = plt.figure(figsize=(8,10))
 ax = plt.subplot(projection=wcs[0])
 
-im = ax.imshow(cont, vmin=-0.5, vmax=0.6, cmap='jet', origin='lower')
+im = ax.imshow(cont, vmin=-0.5, vmax=0.8, cmap='jet', origin='lower')
 cp,kw = colorbar.make_axes(ax, pad=0.01, aspect=18, location='top')
 cb = plt.colorbar(im, cax=cp, orientation='horizontal', ticklocation='top')
 cb.set_label(name+' continuum [mJy/beam]')
@@ -92,10 +92,10 @@ ax.set_xlim(pos_cen[1]-size, pos_cen[1]+size)
 ax.set_ylim(pos_cen[0]-size, pos_cen[0]+size)
 ax.set_xlabel("R.A. (J2000)", labelpad=0.5)
 ax.set_ylabel("Dec (J2000)", labelpad=-1.0)
-ax.scatter(512, 512, marker="+", color='w', s=200, zorder=3)
+ax.scatter(128, 128, marker="+", color='w', s=200, zorder=3)
 ax.scatter(pos_cen[1], pos_cen[0], marker='*', color='k', zorder=4)
 
-#plt.savefig("/home/qyfei/Desktop/Results/Result/NOEMA_detection/origin/"+name+"_cont.pdf", bbox_inches="tight", dpi=300)
+plt.savefig("/home/qyfei/Desktop/Results/NOEMA_detection/taper/"+name+"_cont.pdf", bbox_inches="tight", dpi=300)
 
 # %%
 ## Esimate the flux: aperture
