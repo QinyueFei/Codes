@@ -7,6 +7,7 @@ import matplotlib.colorbar as colorbar
 from matplotlib.transforms import Affine2D
 from astropy.visualization.wcsaxes import WCSAxes
 import astropy.units as u
+from scipy.misc.common import derivative
 from spectral_cube import SpectralCube
 from astropy.modeling import models, fitting
 import astropy.constants as c
@@ -15,6 +16,7 @@ from scipy.special import gamma
 from scipy.special import gammaincinv
 from scipy.special import gammainc
 from astropy.cosmology import Planck15
+from scipy import integrate
 
 def PS_density(M_, re_, n_, r_):
     M, re, n, r = 10**M_, re_, n_, r_
@@ -112,7 +114,6 @@ def V_dh(r_, M_, con_):
     
 # %%
 ## Calculate the rotation curve for FLATTENED bulges
-from scipy import integrate
 ## Estimate the rotation curve in a FLATTENED Sersic bulge
 G = 4.32e-06    ## The gravitational constant
 Sigma0, r_e, n = 5e9/21.7923, 1., 4.  ## The parameters that are used to describe the surface density
@@ -125,6 +126,7 @@ Sigma0, r_e, n = 5e9/21.7923, 1., 4.  ## The parameters that are used to describ
 ## n=5.0, 23.7364
 
 bn = gammaincinv(2*n, 0.5)
+
 # %%
 inc = 1.        ## The inclination angle between line-of-sight and main-axis of rotation
 #q = 0.2        ## The intrinsic axis ratio between major and minor axis radius
@@ -139,13 +141,13 @@ def bounds_r(a):
 def bounds_a():
     return [0, R]
 
-Rs = np.linspace(0, 10., 100)
+Rs = np.linspace(0, 10., 2)
 vs2 = np.zeros(len(Rs))
 vs2e = np.zeros(len(Rs))
-'''
-qs = [0., 0.2, 0.4, 0.6, 0.8, 1.0]
+#qs = [0., 0.2, 0.4, 0.6, 0.8, 1.0]
 #ns = [0.5, 1., 2., 3., 4., 5.]
 #q = 1.
+qs = [0.]
 vc = []
 for j in range(len(qs)):
     q = qs[j]
@@ -156,7 +158,7 @@ for j in range(len(qs)):
         vs2e[i] =integrate.nquad(f, [bounds_r, bounds_a])[1]
     vs = np.sqrt(vs2)
     vc.append(vs)
-'''
+
 # %%
 ## Estimate the velocity through mass
 def M(s): 
@@ -205,7 +207,14 @@ folder = "Barolo_fit/output/PG0050+124_best/"
 file = "ringlog2.txt"
 r_fit,rad_fit,vrot_fit,disp_fit,inc,pa,z0,xpos,ypos,vsys,vrad, evrot1_fit, evrot2_fit, edisp1_fit, edisp2_fit = np.genfromtxt(path+folder+file,skip_header=1,usecols=(0,1,2,3,4,5,7,9,10,11,12,13,14,15,16),unpack=True) 
 
+folder = "Barolo_fit/output/PG0050+124_trash/"
+file = "ringlog2.txt"
+r_fit = np.loadtxt(path+folder+file)[:,0]
+
+
 # %%
+## Bar contribution
+#r_fit = np.linspace(0.1, 10, 20)
 ## Apply the rotation curve on real observation
 ## Inner component
 z = 0.061
@@ -218,12 +227,18 @@ ni = 1.829
 bni = gammaincinv(2*ni, 0.5)
 
 L0i = 1096.342/0.9*1e6                                  # convert into M_sun/kpc^2
-rei = 0.322/Planck15.arcsec_per_kpc_proper(z).value*(1-0.650)
+rei = 0.322/Planck15.arcsec_per_kpc_proper(z).value
 ni = 1.828
 bni = gammaincinv(2*ni, 0.5)
 
+## Bar component
+L0i = 577.861/0.9*1e6                                  # convert into M_sun/kpc^2
+rei = 0.494/Planck15.arcsec_per_kpc_proper(z).value    #0.494
+ni = 0.304
+bni = gammaincinv(2*ni, 0.5)
+
 Sigma0, r_e, n, bn = L0i, rei, ni, bni
-q = 1
+q = 0.1
 e2 = 1-q**2
 
 def f(r, a):
@@ -235,15 +250,30 @@ def bounds_r(a):
 def bounds_a():
     return [0, R]
 
-vs2 = np.zeros(len(r_fit))
-vs2e = np.zeros(len(r_fit))
-for i in range(len(r_fit)):
-    R = r_fit[i]
+r_fit_tot = r_fit#[4:17]
+
+vs2 = np.zeros(len(r_fit_tot))
+vs2e = np.zeros(len(r_fit_tot))
+for i in range(len(r_fit_tot)):
+    R = r_fit_tot[i]
     vs2[i] = integrate.nquad(f, [bounds_r, bounds_a])[0]*4*G
     vs2e[i] =integrate.nquad(f, [bounds_r, bounds_a])[1]
 vs_in = np.sqrt(vs2)
+vs_in
+
+'''
+x_test = np.linspace(0, 13, 100)
+vs2_test = np.zeros(len(x_test))
+vs2e_test = np.zeros(len(x_test))
+for i in range(len(x_test)):
+    R = x_test[i]
+    vs2_test[i] = integrate.nquad(f, [bounds_r, bounds_a])[0]*4*G
+    vs2e_test[i] =integrate.nquad(f, [bounds_r, bounds_a])[1]
+vs_in_test = np.sqrt(vs2_test)'''
+#vs_in
 
 # %%
+## Disk contribution
 ## Outer component
 z = 0.061
 DL = Planck15.luminosity_distance(z)
@@ -260,8 +290,14 @@ reo = 1.329/Planck15.arcsec_per_kpc_proper(z).value
 no = 0.456
 bno = gammaincinv(2*no, 0.5)
 
+## Disk component
+I0o = 106.093
+L0o = 106.093/0.62*1e6    
+reo = 1.297/Planck15.arcsec_per_kpc_proper(z).value
+no = 0.476
+bno = gammaincinv(2*no, 0.5)
+
 Sigma0, r_e, n, bn = L0o, reo, no, bno
-q = 0.1
 e2 = 1-q**2
 
 def f(r, a):
@@ -273,33 +309,127 @@ def bounds_r(a):
 def bounds_a():
     return [0, R]
 
-vs2 = np.zeros(len(r_fit))
-vs2e = np.zeros(len(r_fit))
-for i in range(len(r_fit)):
-    R = r_fit[i]
+vs2 = np.zeros(len(r_fit_tot))
+vs2e = np.zeros(len(r_fit_tot))
+for i in range(len(r_fit_tot)):
+    R = r_fit_tot[i]
     vs2[i] = integrate.nquad(f, [bounds_r, bounds_a])[0]*4*G#*q*np.sqrt(np.sin(inc)**2 + np.cos(inc)**2/q**2)
     vs2e[i] =integrate.nquad(f, [bounds_r, bounds_a])[1]
 vs_out = np.sqrt(vs2)
+vs_out
+'''
+x_test = np.linspace(0, 13, 100)
+vs2_test = np.zeros(len(x_test))
+vs2e_test = np.zeros(len(x_test))
+for i in range(len(x_test)):
+    R = x_test[i]
+    vs2_test[i] = integrate.nquad(f, [bounds_r, bounds_a])[0]*4*G
+    vs2e_test[i] =integrate.nquad(f, [bounds_r, bounds_a])[1]
+vs_out_test = np.sqrt(vs2_test)'''
+
+# %%
+## Point source component
+A = 7302.437/0.9*1e6
+xstd = 0.093/Planck15.arcsec_per_kpc_proper(z).value
+ystd = 0.052/Planck15.arcsec_per_kpc_proper(z).value
+area = np.pi*xstd*ystd*2
+M_p = 3.26e8
+vs_p = np.sqrt(G*M_p/r_fit_tot)
+#vs_p_test = np.sqrt(G*M_p/x_test)
 
 # %%
 
 Mb, re, n, Md, rd, Mdh, con = 10.96, 1.617, 1.69, 10.64, 10.968, 15, 8
 
-a = 0.8
+a = 1#3.1
 #a1, a2 = 3.1/beam_area, 3.1/beam_area
 #beam_area = 0.18899035
 plt.figure(figsize=(8, 8))
 ax = plt.subplot(111)
-v_g = np.sqrt(vs_in**2*a + vs_out**2*a)
-ax.errorbar(r_fit, v_g, fmt='ko', mfc='none')
+v_g = np.sqrt(vs_in**2 + vs_out**2 + vs_p**2)# + vs_p**2
+#v_g_test = np.sqrt(vs_in_test**2 + vs_out_test**2 + vs_p_test**2)
 
-ax.errorbar(r_fit, vs_in*np.sqrt(a), fmt='ko', mfc='none')
-ax.errorbar(r_fit, vs_out*np.sqrt(a), fmt='ks', mfc='none')
-ax.set_xlim(0, 3.1)
+ax.plot(r_fit_tot, v_g*np.sqrt(a), "k", label="Total")
+#ax.plot(x_test, v_g_test*np.sqrt(a), "k:")
+
+#ax.plot(r_fit, vs_bar*np.sqrt(a), "k:", label="Bar")
+ax.plot(r_fit_tot, vs_in*np.sqrt(a), "b:", label="Inner")
+ax.plot(r_fit_tot, vs_out*np.sqrt(a), "k--", label="Disk")
+ax.plot(r_fit_tot, vs_p*np.sqrt(a), "k-.", label="Point")
+#ax.plot(r_fit_tot, np.sqrt(G*a*10**9.75/r_fit_tot), "k", lw=3, alpha=0.5, label="Total Point")
+#ax.plot(x_test, np.sqrt(G*a*10**9.75/x_test), "k", lw=3, alpha=0.5, label="Total Point")
+
+ax.errorbar(r_fit, vrot_fit, yerr=[-evrot1_fit, evrot2_fit], fmt='bo', mfc='blue', ms=10, mew=1, elinewidth=1, capsize=5, label="$v_\mathrm{rot}$")
+ax.errorbar(r_fit[4:17], vrot_fit[4:17], yerr=[-evrot1_fit[4:17], evrot2_fit[4:17]], fmt='rs', mfc='red', ms=10, mew=1, elinewidth=1, capsize=5, label="fit points")
+
+ax.vlines(0.43, 0, 400, color='k', ls=':')
+ax.vlines(0.86, 0, 400, color='k', ls=':')
+ax.vlines(2.10, 0, 400, color='k', ls=':')
+
+ax.set_xlim(0, 3)
 ax.set_ylim(0, 380)
+ax.set_xlabel("Radius [kpc]")
+ax.set_ylabel("$V$ [$\mathrm{km\,s^{-1}}$]")
+v_tot2 = V_b(r_fit_tot, Md, re, n)**2 + V_d(r_fit_tot, Md, rd)**2 + V_dh(r_fit_tot, Mdh, con)**2 + v_g**2
+#v_ad = v_ac2([Md, re, n, Md, rd, Mdh, con, a], r_fit[:], disp_fit[:])
+#v_tot2 + v_ad
+plt.legend(fontsize=25)
 
-v_tot2 = V_b(r_fit, Md, re, n)**2 + V_d(r_fit, Md, rd)**2 + V_dh(r_fit, Mdh, con)**2 + v_g**2
-v_ad = v_ac2([Md, re, n, Md, rd, Mdh, con, a], r_fit[:], disp_fit[:])
-v_tot2 + v_ad
+#plt.savefig("/home/qyfei/Desktop/Results/Barolo/PG0050/RC.pdf", bbox_inches="tight", dpi=300)
+# %%
+
+v_b_test = V_b(x_test, para_out[0], para_out[1], para_out[2]) #para_out[0], para_out[1], para_out[2]
+v_d_test = V_d(x_test, para_out[3], para_out[4]) #para_out[3], para_out[4]
+#log_Mdh = np.log10((10**para_out[0]+10**para_out[3]+para_out[7]*1.36*L_CO)*(1/10**para_out[5]-1))
+v_dh_test = V_dh(x_test, para_out[5], para_out[6])
+#v_g = V_gas*np.sqrt(para_out[7])
+plt.figure(figsize=(8, 8))
+ax = plt.subplot(111)
+ax.plot(x_test, v_b_test, "red", lw=2, label="Bulge")
+ax.plot(x_test, v_d_test, "blue", lw=2, label="Disk")
+ax.plot(x_test, v_dh_test, "yellow", lw=2, label="DM")
+ax.plot(x_test, v_g_test*np.sqrt(alpha_CO), "green", lw=2, label="Gas")
+
+v_tot_test = np.sqrt(v_b_test**2 + v_d_test**2 + v_dh_test**2 + v_g_test**2*alpha_CO)
+ax.plot(x_test, v_tot_test, "Grey", lw=5, zorder=3, label="Total")
+#ax.plot(r_fit_tot, np.sqrt(v_b**2+v_d**2+v_dh**2+v_g**2*alpha_CO + disp_tot**2*(asy0+asy1)), "Grey", lw=5, zorder=3, label='Total')
+
+#ax.errorbar(rfit2D[5:], Vrot2D[5:], yerr=evrot2D[5:], fmt='ro', mfc='r', ms=8, mew=1, elinewidth=1, capsize=4, label=r'$\mathrm{H}\alpha$')
+ax.errorbar(r_fit, vrot_fit, yerr=[-evrot1_fit, evrot2_fit], fmt='bo', mfc='b', ms=10, mew=1, elinewidth=1, capsize=5, label='CO')
+ax.errorbar(r_fit_tot, vrot_tot, yerr=[-evrot1_fit[7:17], evrot2_fit[7:17]], fmt='ks', mfc='none', ms=10, mew=1, elinewidth=1, capsize=5)
+
+ax.vlines(0.86, 0, 400, color='k', ls=':')
+ax.vlines(2.1, 0, 400, color='k', ls=':')
+ax.vlines(3, 0, 400, color='k', ls=':')
+ax.set_xlim(0, 13)
+ax.set_ylim(0, 360)
+ax.set_xlabel('Radius [kpc]')
+ax.set_ylabel(r'$V_\mathrm{rot}$ [$\mathrm{km\,s^{-1}}$]')
+plt.legend(fontsize=18, loc="lower right")
+
+
+# %%
+
+Mb, re, n, Md, rd = 10.96, 1.62, 1.69, 10.64, 10.97
+v_b = V_b(r_fit, Mb, re, n)
+v_d = V_d(r_fit, Md, rd)
+
+plt.figure(figsize=(8, 8))
+ax = plt.subplot(111)
+
+ax.errorbar(r_fit, vrot_fit, yerr=[-evrot1_fit, evrot2_fit], fmt='bs', mfc='none', ms=8, mew=1, elinewidth=1, capsize=4, label="$v_\mathrm{rot}$")
+
+ax.errorbar(r_fit, vcirc, yerr=[evcirc1_fit, evcirc2_fit], fmt='ks', mfc='none', ms=8, mew=1, elinewidth=1, capsize=4, label="$v_\mathrm{circ}$")
+
+#ax.plot(r_fit, v_b, 'm')
+#ax.plot(r_fit, v_d, 'g')
+
+ax.set_xlim(0, r_fit[-1]+0.15)
+ax.set_ylim(0, 380)
+ax.set_xlabel('radius [kpc]')
+ax.set_ylabel(r'$V_\mathrm{circ}$ [$\mathrm{km\,s^{-1}}$]')
+plt.legend()
+
+#plt.savefig("/home/qyfei/Desktop/Results/Dynamics/results/PG0050/asym_drift/RC_ad_03.pdf", bbox_inches="tight", dpi=300)
 
 # %%
