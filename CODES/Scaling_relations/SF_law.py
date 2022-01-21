@@ -62,11 +62,22 @@ DL = Planck15.luminosity_distance(0.061)
 
 ## Area
 redshift = 0.06115
-FWHM_maj = 0.174#2.922*0.05*u.arcsec/cosmo.arcsec_per_kpc_proper(redshift)*2.355
-FWHM_min = 0.100#1.533*0.05*u.arcsec/cosmo.arcsec_per_kpc_proper(redshift)*2.355
-disp_maj = FWHM_maj/2.355*6*u.arcsec/Planck15.arcsec_per_kpc_proper(redshift)
-disp_min = FWHM_min/2.355*6*u.arcsec/Planck15.arcsec_per_kpc_proper(redshift)
-area = np.pi*disp_maj*disp_min/np.cos(41*u.deg)
+## Deconvolution
+FWHM_maj = 0.174*u.arcsec/Planck15.arcsec_per_kpc_proper(redshift)#*2.355
+FWHM_min = 0.100*u.arcsec/Planck15.arcsec_per_kpc_proper(redshift)#*2.355
+FWHM_err = 0.02*u.arcsec/Planck15.arcsec_per_kpc_proper(redshift)#*2.355
+## Convolution
+FWHM_maj = 0.359*u.arcsec/Planck15.arcsec_per_kpc_proper(redshift)#*2.355
+FWHM_min = 0.298*u.arcsec/Planck15.arcsec_per_kpc_proper(redshift)#*2.355
+FWHM_err = 0.06*u.arcsec/Planck15.arcsec_per_kpc_proper(redshift)#*2.355
+
+#disp_maj = FWHM_maj/2.355*2*u.arcsec/Planck15.arcsec_per_kpc_proper(redshift)
+#disp_min = FWHM_min/2.355*2*u.arcsec/Planck15.arcsec_per_kpc_proper(redshift)
+#area = np.pi*disp_maj*disp_min/np.cos(41*u.deg)
+
+area = np.pi*FWHM_maj*FWHM_min/(4*np.log(2))/np.cos(41*u.deg)*9
+area_err1 = (area - np.pi*(FWHM_maj-FWHM_err)*(FWHM_min-FWHM_err)/(4*np.log(2))/np.cos(41*u.deg))*9
+area_err2 = (area - np.pi*(FWHM_maj+FWHM_err)*(FWHM_min+FWHM_err)/(4*np.log(2))/np.cos(41*u.deg))*9
 
 #redshift = 0.06115
 #area = (0.05*u.arcsec/cosmo.arcsec_per_kpc_proper(redshift))**2*134/np.cos(41*u.deg)
@@ -75,10 +86,15 @@ area = np.pi*disp_maj*disp_min/np.cos(41*u.deg)
 nu_obs = 217.232*u.GHz
 L_CO_area = np.sum(3.25e7*(S_CO_area)*(DL.value)**2/(1+redshift)**3/(nu_obs/u.GHz)**2)
 
-M_gas = 3.1*L_CO_area*u.M_sun/0.9
+M_gas_traditional = 3.1*L_CO_area*u.M_sun/0.9
+M_H2_density_traditional = (M_gas_traditional/area).to('M_sun/pc^2').value
+M_H2_density_err1_traditional = (1.55/3.1*M_gas_traditional/area).to('M_sun/pc^2').value
+M_H2_density_err2_traditional = (3.1/3.1*M_gas_traditional/area).to('M_sun/pc^2').value
 
-M_H2_density = (M_gas/area).to('M_sun/pc^2').value
-M_H2_density_err = (10**0.30*u.Msun/area).to('M_sun/pc^2').value
+M_gas_true = 1.27/1.4*L_CO_area*u.M_sun/0.9
+M_H2_density_true = (M_gas_true/area).to('M_sun/pc^2').value
+M_H2_density_err1_true = -((1.27-0.71)*M_gas_true/area).to('M_sun/pc^2').value + M_H2_density_true
+M_H2_density_err2_true = ((1.27+0.83)/3.1*M_gas_true/area).to('M_sun/pc^2').value - M_H2_density_true
 
 SFR_density = (14.20/area*u.Unit('M_sun/yr')).value
 SFR_density_err = (0.20/area*u.Unit('M_sun/yr')).value
@@ -122,7 +138,8 @@ plt.errorbar(Genzel_gas_den_SB, Genzel_SFR_den_SB, fmt='b*', mfc='none', ms=10, 
 plt.errorbar(Genzel_gas_den_D, Genzel_SFR_den_D, fmt='bo', mfc='none', ms=10, mew=1, label="high z SFGs")
 plt.errorbar(Tacconi_gas_den_D, Tacconi_SFR_den_D, fmt='yo', mfc='none', ms=10, mew=1, label="high z SFGs")
 
-plt.errorbar(M_H2_density, SFR_density, yerr=SFR_density_err, fmt='rs', mfc='none', ms=15, capsize=8, mew=1, zorder=3, label="This work")
+plt.errorbar(np.array([M_H2_density_traditional]), np.array([SFR_density]), xerr=[np.array([M_H2_density_err1_traditional]), np.array([M_H2_density_err2_traditional])], yerr=np.array([SFR_density_err]), fmt='C1s', mfc='none', ms=15, capsize=8, mew=1, zorder=3, label=r"MW-like $\alpha_\mathrm{CO}$")
+plt.errorbar(np.array([M_H2_density_true]), np.array([SFR_density]), xerr=[-np.array([M_H2_density_err1_true]), np.array([M_H2_density_err2_true])], yerr=np.array([SFR_density_err]), fmt='rs', mfc='none', ms=15, capsize=8, mew=1, zorder=3, label=r"ULIRG-like $\alpha_\mathrm{CO}$")
 
 
 plt.xlabel(r'$\Sigma_\mathrm{H_2}$ [$\mathrm{M_\odot\cdot pc^{-2}}$]')
@@ -138,5 +155,23 @@ plt.gca().add_artist(l1)
 
 #plt.savefig('/home/qyfei/Desktop/Results/Result/PG0050/SF_law_comp_new.pdf', bbox_inches='tight', dpi=300)
 
+# %%
+asymmetric_error = [M_H2_density_err1, M_H2_density_err2]
+plt.figure(figsize=(8, 8))
+ax = plt.subplot(111)
+ax.errorbar(np.array([M_H2_density]), np.array([SFR_density]), yerr=np.array([SFR_density_err, SFR_density_err*2]), fmt='rs', mfc='none', ms=15, capsize=8, mew=1, zorder=3, label="This work")
 
+# %%
+# %%
+x = np.arange(0,10,10)
+y = x**2
+yerr1 = 0.1*y
+yerr2 = 0.3*y
+x[0] = M_H2_density
+yerr1 = np.array([M_H2_density_err1])
+yerr2 = np.array([M_H2_density_err2])
+
+plt.errorbar(x, y, xerr=[yerr1, yerr2], fmt='ko', mfc='none')
+# %%
+x
 # %%
