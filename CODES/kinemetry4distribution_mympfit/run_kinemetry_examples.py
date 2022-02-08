@@ -1,3 +1,4 @@
+# %%
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
@@ -26,8 +27,8 @@ import matplotlib as mpl
 mpl.rcParams['xtick.direction'] = 'in'
 mpl.rcParams['ytick.direction'] = 'in'
 
-from kinemetry import kinemetry
-import kinemetry as kin
+from kinemetry4distribution_mympfit.kinemetry import kinemetry
+import kinemetry4distribution_mympfit.kinemetry as kin
 
 import time
 from os import path
@@ -727,7 +728,8 @@ def img_kinemetry():
     
     #make maps
     plot_photometry(img, k)
-
+    
+# %%
 #----------------------------------------------------------------------------
 if __name__ == '__main__':
     
@@ -749,3 +751,5 @@ if __name__ == '__main__':
     
     print('kinemetry on SDSS image')
     img_kinemetry()
+# %%
+

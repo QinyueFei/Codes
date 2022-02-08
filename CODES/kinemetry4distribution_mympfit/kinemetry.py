@@ -500,7 +500,7 @@ from plotbin.plot_velfield import plot_velfield
 from matplotlib.patches import Ellipse
 
 
-from kin_mpfit import mpfit
+from kinemetry4distribution_mympfit.kin_mpfit import mpfit
 import matplotlib.ticker
 import matplotlib as mpl
 mpl.rcParams['xtick.direction'] = 'in'
