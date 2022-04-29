@@ -19,7 +19,7 @@ import astropy.io.fits as pyfits
 from plotbin.plot_velfield import plot_velfield
 
 from matplotlib.patches import Ellipse
-
+from matplotlib.colors import LogNorm
 import matplotlib.ticker
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from matplotlib import gridspec
@@ -32,6 +32,12 @@ import kinemetry4distribution_mympfit.kinemetry as kin
 
 import time
 from os import path
+
+# plt.rc('text', usetex=True)
+# plt.rc('font', family='dejavuserif', size=10)
+# plt.rc('xtick', direction='in', top=True)
+# plt.rc('ytick', direction='in', right=True)
+
 
 #----------------------------------------------------------------------------
 def plot_kinemetry_profiles_velocity(k, fitcentre=False, name=None):
@@ -198,8 +204,9 @@ def plot_kinemetry_profiles_velocity(k, fitcentre=False, name=None):
         tick.label1.set_fontweight('bold')
     for axis in ['top','bottom','left','right']:
         ax6.spines[axis].set_linewidth(2)
-        
-    fig.tight_layout()
+    output_dir = "/home/qyfei/Desktop/Codes/CODES/kinemetry4distribution_mympfit/examples/"
+    plt.savefig(output_dir+"plot_kinemetry_profiles_velocity.pdf", bbox_inches="tight", dpi=300)    
+    # fig.tight_layout()
 
 
 
@@ -321,8 +328,9 @@ def plot_kinemetry_maps(xbin, ybin, velbin, k, sigma=False):
         tick.label1.set_fontweight('bold')
     for axis in ['top','bottom','left','right']:
         ax1.spines[axis].set_linewidth(2)
-
-    fig.tight_layout()
+    output_dir = "/home/qyfei/Desktop/Codes/CODES/kinemetry4distribution_mympfit/examples/"
+    plt.savefig(output_dir+"plot_kinemetry_maps.pdf", bbox_inches="tight", dpi=300)
+    # fig.tight_layout()
 
 
 
@@ -513,8 +521,9 @@ def plot_kinemetry_profiles_sigma(k, fitcentre=False, name=None, photo=False):
         tick.label1.set_fontweight('bold')
     for axis in ['top','bottom','left','right']:
         ax6.spines[axis].set_linewidth(2)
-        
-    fig.tight_layout()
+    output_dir = path.dirname(path.realpath(kin.__file__))
+    plt.savefig(output_dir+"/examples/plot_kinemetry_profiles_sigma.pdf", bbox_inches="tight", dpi=300)    
+    # fig.tight_layout()
 
 #----------------------------------------------------------------------------
 def plot_photometry(img, k):
@@ -534,7 +543,7 @@ def plot_photometry(img, k):
     peak = img[int(round(np.median(k.xc))), int(round(np.median(k.yc)))]
     levels = peak * 10**(-0.4*np.arange(0, 5, 0.5)[::-1]) # 0.5 mag/arcsec^2 steps
 
-    ax1.imshow(np.log10(img), vmin=np.min(np.log10(levels)), vmax=np.max(np.log10(levels)), origin='lower', extent=ext, cmap='gray')          
+    ax1.imshow(np.log10(img), vmin=np.min(np.log10(levels)), vmax=np.max(np.log10(levels)), origin='lower', extent=ext, cmap='jet')          
     ax1.contour(np.log10(img), levels=np.log10(levels), colors='black', linewidths=1, origin='lower', extent=ext)         
     for i in range(k.rad.size):
         if i % 3 == 0:
@@ -542,10 +551,12 @@ def plot_photometry(img, k):
             ax1.add_patch(ellipse)
     
     ax2 = plt.subplot(gs[1]) 
-    ax2.imshow(np.log10(k.velcirc), vmin=np.min(np.log10(levels)), vmax=np.max(np.log10(levels)), origin='lower', extent=ext, cmap='gray')          
+    ax2.imshow(np.log10(k.velcirc), vmin=np.min(np.log10(levels)), vmax=np.max(np.log10(levels)), origin='lower', extent=ext, cmap='jet')          
 
     ax3 = plt.subplot(gs[2]) 
-    ax3.imshow(np.log10(k.velkin), vmin=np.min(np.log10(levels)), vmax=np.max(np.log10(levels)), origin='lower', extent=ext, cmap='gray')          
+    ax3.imshow(np.log10(k.velkin), vmin=np.min(np.log10(levels)), vmax=np.max(np.log10(levels)), origin='lower', extent=ext, cmap='jet')       
+    output_dir = path.dirname(path.realpath(kin.__file__))
+    # plt.savefig(output_dir+"/examples/plot_photometry.pdf", bbox_inches="tight", dpi=300)   
 
 
 
@@ -707,49 +718,102 @@ def sig_map_centre_kinemetry():
 def img_kinemetry():
     
     file_dir = path.dirname(path.realpath(kin.__file__))
-    file = file_dir + '/examples/NGC4473r.fits'
+    file = file_dir + '/examples/PG0050_CO21_mom0.fits'
     hdu = pyfits.open(file)
 
-    img = hdu[0].data
-    
-    ang = 178
-    eps = 0.43
+    img = hdu[0].data[0][0][350:450, 350:450]
+    N = np.where(np.isnan(img))
+    img[N] = 0
+    ang = 220
+    eps = 0.05
 
     start=time.time()
-    k = kinemetry(img=img, x0=450, y0=450, error=np.sqrt(img),
-             ntrm=10,  name='NGC4474', paq=[ang-90, 1-eps], 
+    k = kinemetry(img=img, x0=47, y0=49,# error=np.sqrt(img),
+             ntrm=10,  name='PG0050', paq=[ang-90, 1-eps], 
              allterms=False, even=True, bmodel=True,# badpix=None,
              plot=True, verbose=True, nogrid=True, fixcen=False)
     end=time.time()
     print('finshed in ', end - start, ' seconds')
 
     #make radial plots
-    plot_kinemetry_profiles_sigma(k, fitcentre=True, photo=True, name='NGC4473')
-    
+    plot_kinemetry_profiles_sigma(k, fitcentre=False, photo=True, name='PG0050')
+    # plot_kinemetry_profiles_velocity(k, name='PG0050 CO(2-1) Vel')
     #make maps
     plot_photometry(img, k)
-    
+    print(k)
+    return k
+
 # %%
 #----------------------------------------------------------------------------
-if __name__ == '__main__':
+# if __name__ == '__main__':
     
 
-    print('kinemetry on velocity map (fixed centre)')
-    vel_map_kinemetry()
+#     print('kinemetry on velocity map (fixed centre)')
+#     vel_map_kinemetry()
     
-    print('kinemetry on velocity map + fit centre')
-    vel_map_centre_kinemetry()
+#     print('kinemetry on velocity map + fit centre')
+#     vel_map_centre_kinemetry()
     
-    print('kinemetry on velocity map + predefined ellipses')
-    vel_map_ellipse_kinemetry()
+#     print('kinemetry on velocity map + predefined ellipses')
+#     vel_map_ellipse_kinemetry()
 
-    print('kinemetry on velocity dispersion map, limited PA, Q, fixed centre')
-    sig_map_kinemetry()
+#     print('kinemetry on velocity dispersion map, limited PA, Q, fixed centre')
+#     sig_map_kinemetry()
 
-    print('kinemetry on velocity dispersion map, limited PA, Q, fixed centre')
-    sig_map_centre_kinemetry()
+#     print('kinemetry on velocity dispersion map, limited PA, Q, fixed centre')
+#     sig_map_centre_kinemetry()
     
-    print('kinemetry on SDSS image')
-    img_kinemetry()
+#     print('kinemetry on SDSS image')
+#     img_kinemetry()
 # %%
 
+# vel_map_kinemetry()
+# sig_map_kinemetry()
+# img_kinemetry()
+
+# %%
+file_dir = path.dirname(path.realpath(kin.__file__))
+file = file_dir + '/examples/PG0050_CO21_mom1.fits'
+hdu = pyfits.open(file)
+
+img = hdu[0].data[0][0][350:450, 350:450] - 17272
+N = np.where(np.isnan(img))
+img[N] = 0
+ang = 40
+eps = 0.5
+
+start=time.time()
+k = kinemetry(img=img, x0=50, y0=50,# error=np.sqrt(img),
+         ntrm=10,  name='PG0050', paq=[ang-90, 1-eps], rangePA=[-70, -20], badpix=N, 
+         allterms=False, even=False, bmodel=True,# badpix=None,
+         plot=True, verbose=True, nogrid=True, fixcen=[44,48])
+
+# %%
+fig,ax =plt.subplots(figsize=(12,4))
+
+gs = gridspec.GridSpec(1, 3, width_ratios=[1,1,1.06]) 
+
+ax1 = plt.subplot(gs[0])
+    
+x1=int(np.median(k.xc)-np.max(k.rad))
+y1=int(np.median(k.yc)-np.max(k.rad))
+x2=int(np.median(k.xc)+np.max(k.rad))
+y2=int(np.median(k.yc)+np.max(k.rad))
+ext=[x1,x2,y1,y2] 
+peak = img[int(round(np.median(k.xc))), int(round(np.median(k.yc)))]
+# levels = peak * 10**(-0.4*np.arange(0, 5, 0.5)[::-1]) # 0.5 mag/arcsec^2 steps
+levels = np.linspace(-220, 220, 10)
+ax1.imshow(img, vmin=-250, vmax=250, origin='lower', extent=ext, cmap='jet')          
+ax1.contour(img, levels=levels, colors='black', linewidths=1, origin='lower', extent=ext)         
+for i in range(k.rad.size):
+    if i % 3 == 0:
+        ellipse = Ellipse(xy=(k.xc[i], k.yc[i]), width=2*k.rad[i], height=2*k.rad[i]*k.q[i], angle=k.pa[i]-90, edgecolor='r', fc='None', lw=2)        
+        ax1.add_patch(ellipse)
+    
+ax2 = plt.subplot(gs[1]) 
+ax2.imshow(k.velcirc, vmin=-250, vmax=250, origin='lower', extent=ext, cmap='jet')          
+
+ax3 = plt.subplot(gs[2]) 
+ax3.imshow(k.velkin, vmin=-250, vmax=250, origin='lower', extent=ext, cmap='jet')       
+# output_dir = path.dirname(path.realpath(kin.__file__))
+# %%

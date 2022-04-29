@@ -1,0 +1,12 @@
+2022-02-08 14:01:28	INFO	::casa	
+2022-02-08 14:01:28	INFO	::casa	Checking telemetry submission interval
+2022-02-08 14:01:28	INFO	::casa	Telemetry submit interval not reached. Not submitting data.
+2022-02-08 14:01:28	INFO	::casa	Next telemetry data submission in: 5 days, 18:41:30.778072
+2022-02-08 14:01:28	INFO	::casa	CASA Version PIPELINE 5.6.1-8  
+2022-02-08 14:01:30	INFO	viewer::::	
+2022-02-08 14:01:30	INFO	viewer::::+	##########################################
+2022-02-08 14:01:30	INFO	viewer::::+	##### Begin Task: viewer             #####
+2022-02-08 14:01:30	INFO	viewer::::	viewer(infile="",displaytype="raster",channel=0,zoom=1,outfile="",
+2022-02-08 14:01:30	INFO	viewer::::+	        outscale=1.0,outdpi=300,outformat="jpg",outlandscape=False,gui=True)
+2022-02-08 14:01:31	INFO	viewer::::	##### End Task: viewer               #####
+2022-02-08 14:01:31	INFO	viewer::::+	##########################################

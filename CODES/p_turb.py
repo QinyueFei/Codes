@@ -3,7 +3,6 @@ from Physical_values.surface_density import surface_density, iso_rad, surface_de
 from map_visualization.maps import *
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib.pyplot as plt
 
 plt.rc('text', usetex=True)
 plt.rc('font', family='serif', size=18)
