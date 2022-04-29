@@ -123,7 +123,7 @@ plt.legend()
 
 # %%
 from scipy.misc import derivative
-from Barolo_analyse.parameters import load_parameters
+# from Barolo_analyse.parameters import load_parameters
 
 path = '/media/qyfei/f6e0af82-2ae6-44a3-a033-f66b47f50cf4/ALMA/PG0050+124/CO21_combine/combine/'
 folder = "Barolo_fit/output/PG0050+124_best/"
@@ -167,11 +167,24 @@ sigmas0 = np.power(10, 10.64)/(2*np.pi*rse**2)/1e6
 asy0 = r_fit/sigmag(r_fit)*derivative(sigmag, r_fit, dx=1e-8)   # Gas asymmetric drift correction
 asy1 = r_fit/sigmat(r_fit)*derivative(sigmat, r_fit, dx=1e-8)
 print(asy0+asy1)
-vcirc2 = vrot_fit**2 - disp_fit**2*(asy0+asy1)
+vcirc2 = vrot_fit**2 - disp_fit**2*(asy0)*2#+asy1)
 vcirc = np.sqrt(vcirc2)
 evcirc1_fit = np.sqrt(evrot1_fit**2 + edisp1_fit**2*(asy0+asy1)**2)
 evcirc2_fit = np.sqrt(evrot2_fit**2 + edisp2_fit**2*(asy0+asy1)**2)
 
+adc_my = np.sqrt(-disp_fit**2*(asy0+asy1))
+adc_3DB = np.loadtxt("/media/qyfei/f6e0af82-2ae6-44a3-a033-f66b47f50cf4/ALMA/PG0050+124/CO21_combine/combine/Barolo_fit/output/PG0050+124_best/asymdrift.txt")[:,1]
+
+
+plt.figure(figsize=(8, 8))
+plt.scatter(adc_my, adc_3DB, color='b', marker="o")
+plt.plot([0,1000],[0,1000], color='k', ls="--")
+plt.xlim(0, 100)
+plt.ylim(0, 100)
+plt.xlabel(r"$V_\mathrm{adc}$ [km/s]")
+plt.ylabel(r"$V_\mathrm{adc,3DB}$ [km/s]")
+plt.grid()
+# plt.savefig("/home/qyfei/Desktop/Results/Dynamics/Vad_compare.pdf", bbox_inches="tight", dpi=300)
 #print(vcirc)
 # %%
 G = 4.302e-6
