@@ -99,6 +99,7 @@ M_H2_density_err2_true = ((1.27+0.83)/3.1*M_gas_true/area).to('M_sun/pc^2').valu
 SFR_density = (14.20/area*u.Unit('M_sun/yr')).value
 SFR_density_err = (0.20/area*u.Unit('M_sun/yr')).value
 
+
 # %%
 ## KS-law from fitting
 
@@ -132,17 +133,24 @@ lines1[1], = plt.plot(gas_den_x, SFR_den_Bigiel, 'y--')
 lines1[2], = plt.plot(gas_den_x, SFR_den_Sanchez, 'm--')
 points = [0,0,0,0,0]
 labels2 = ['Kennicutt+1998 starburst','Kennicutt+1998 disk','Genzel+2010 starburst','Genzel+2010 disk','Tacconi+2010 disk']
-plt.errorbar(Kennicutt_gas_den_SB, Kennicutt_SFR_den_SB, fmt='k*', mfc='none', ms=10, mew=1, label="z$\sim$0 SBs")
-plt.errorbar(Kennicutt_gas_den_D, Kennicutt_SFR_den_D, fmt='ko', mfc='none', ms=10, mew=1, label="z$\sim$0 SFGs")
-plt.errorbar(Genzel_gas_den_SB, Genzel_SFR_den_SB, fmt='b*', mfc='none', ms=10, mew=1, label="high z SBs")
-plt.errorbar(Genzel_gas_den_D, Genzel_SFR_den_D, fmt='bo', mfc='none', ms=10, mew=1, label="high z SFGs")
-plt.errorbar(Tacconi_gas_den_D, Tacconi_SFR_den_D, fmt='yo', mfc='none', ms=10, mew=1, label="high z SFGs")
+plt.errorbar(Kennicutt_gas_den_SB, Kennicutt_SFR_den_SB, fmt='k*', mfc='none', ms=10, mew=1, label="Kennicutt98 SBs")
+plt.errorbar(Kennicutt_gas_den_D, Kennicutt_SFR_den_D, fmt='ko', mfc='none', ms=10, mew=1, label="Kennicutt98 SFGs")
+plt.errorbar(Genzel_gas_den_SB, Genzel_SFR_den_SB, fmt='b*', mfc='none', ms=10, mew=1, label="Genzel10 SBs")
+plt.errorbar(Genzel_gas_den_D, Genzel_SFR_den_D, fmt='bo', mfc='none', ms=10, mew=1, label="Genzel10 SFGs")
+plt.errorbar(Tacconi_gas_den_D, Tacconi_SFR_den_D, fmt='yo', mfc='none', ms=10, mew=1, label="Tacconi10 SFGs")
 
-plt.errorbar(np.array([M_H2_density_traditional]), np.array([SFR_density]), xerr=[np.array([M_H2_density_err1_traditional]), np.array([M_H2_density_err2_traditional])], yerr=np.array([SFR_density_err]), fmt='C1s', mfc='none', ms=15, capsize=8, mew=1, zorder=3, label=r"MW-like $\alpha_\mathrm{CO}$")
-plt.errorbar(np.array([M_H2_density_true]), np.array([SFR_density]), xerr=[-np.array([M_H2_density_err1_true]), np.array([M_H2_density_err2_true])], yerr=np.array([SFR_density_err]), fmt='rs', mfc='none', ms=15, capsize=8, mew=1, zorder=3, label=r"ULIRG-like $\alpha_\mathrm{CO}$")
+# plt.errorbar(np.array([M_H2_density_traditional]), np.array([SFR_density]), xerr=[np.array([M_H2_density_err1_traditional]), np.array([M_H2_density_err2_traditional])], yerr=np.array([SFR_density_err]), fmt='C1s', mfc='none', ms=15, capsize=8, mew=1, zorder=3, label=r"MW-like $\alpha_\mathrm{CO}$")
+# plt.errorbar(np.array([M_H2_density_true]), np.array([SFR_density]), xerr=[-np.array([M_H2_density_err1_true]), np.array([M_H2_density_err2_true])], yerr=np.array([SFR_density_err]), fmt='rs', mfc='none', ms=15, capsize=8, mew=1, zorder=3, label=r"ULIRG-like $\alpha_\mathrm{CO}$")
+
+plt.errorbar(np.array([Sigma_H2.value]), np.array([Sigma_SFR.value]), xerr=[np.array([-e1Sigma_H2.value]), np.array([e2Sigma_H2.value])], yerr = np.array([eSigma_SFR.value]), fmt='rs', mfc='none', ms=6, capsize=3, mew=0.5, lw=0.5, zorder=3, label="This work")
+plt.errorbar(np.array([Sigma_H2_tra.value]), np.array([Sigma_SFR.value]), xerr=[np.array([e1Sigma_H2_tra.value]), np.array([e2Sigma_H2_tra.value])], yerr = np.array([eSigma_SFR.value]), fmt='r<', mfc='none', ms=6, capsize=3, mew=0.5, lw=0.5, zorder=3)
 
 
-plt.xlabel(r'$\Sigma_\mathrm{H_2}$ [$\mathrm{M_\odot\cdot pc^{-2}}$]')
+plt.errorbar(np.array([Sigma_H2_peak.value]), np.array([Sigma_SFR_peak.value]), xerr=[np.array([-e1Sigma_H2_peak.value]), np.array([e2Sigma_H2_peak.value])], yerr = np.array([eSigma_SFR_peak.value]), fmt='C1s', mfc='none', ms=6, capsize=3, mew=0.5, lw=0.5, zorder=3)
+plt.errorbar(np.array([Sigma_H2_tra_peak.value]), np.array([Sigma_SFR_peak.value]), xerr=[np.array([e1Sigma_H2_tra_peak.value]), np.array([e2Sigma_H2_tra_peak.value])], yerr = np.array([eSigma_SFR_peak.value]), fmt='C1<', mfc='none', ms=6, capsize=3, mew=0.5, lw=0.5, zorder=3)
+
+
+plt.xlabel(r'$\Sigma_\mathrm{mol}$ [$\mathrm{M_\odot\cdot pc^{-2}}$]')
 plt.ylabel(r'$\Sigma_\mathrm{SFR}$ [$\mathrm{M_\odot\cdot kpc^{-2}\cdot yr^{-1}}$]')
 
 plt.loglog()
@@ -153,7 +161,7 @@ l1 = plt.legend(lines1, labels1, loc="upper left", frameon=False, fontsize=15)
 plt.legend(loc="lower right", frameon=False, fontsize=15)
 plt.gca().add_artist(l1)
 
-#plt.savefig('/home/qyfei/Desktop/Results/Result/PG0050/SF_law_comp_new.pdf', bbox_inches='tight', dpi=300)
+# plt.savefig("/home/qyfei/Desktop/Results/Result/PG0050/SF_law_mean_peak.pdf", bbox_inches='tight', dpi=300)
 
 # %%
 asymmetric_error = [M_H2_density_err1, M_H2_density_err2]
