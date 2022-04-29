@@ -7,6 +7,7 @@ import astropy.units as u
 import matplotlib
 from scipy import integrate
 from matplotlib import colorbar
+from matplotlib import colors
 
 plt.rc('text', usetex=True)
 plt.rc('font', family='dejavuserif', size=25)
@@ -18,7 +19,7 @@ file = "PG0050_CO21-combine-line-10km-mosaic-mom0.fits"
 #name_pbc = "PG0050_CO21-combine-line-10km-mosaic-pbc-mom0-rms.fits"
 
 from map_visualization.moment0 import load_mom0
-from map_visualization.maps import beam
+from map_visualization.maps import beam, load_mom0
 from map_visualization.fitting.module import Disk2D, Gauss2D
 mom0, wcs, pos_cen, size, pix_size, r, hdu = load_mom0(path, file)
 
@@ -41,8 +42,11 @@ mom0, wcs, pos_cen, size, pix_size, r, hdu = load_mom0(path, file)
 size = 100                  ## The size of map
 xpos, ypos = pos_cen[0][0], pos_cen[1][0]       ## The position of center
 f_mom0 = mom0[xpos-size:xpos+size, ypos-size:ypos+size] ## The moment map that we want to fit
-f_err = r                   ## The rms noise of the moment0 map
+f_err = 0.043#r                   ## The rms noise of the moment0 map
 mom0_level = np.array([-1,1,2,4,8,16,32])*3*f_err
+
+plt.imshow(f_mom0, norm=LogNorm())
+plt.colorbar()
 
 # %%
 ## convert into K km/s
@@ -60,7 +64,7 @@ plt.imshow(f_mom0_test, norm=LogNorm())
 plt.colorbar()
 
 # %%
-## Fit the observation with double Sersic profile
+## Fit the observation with double Sersic profile and one Gaussian profile
 
 def log_prior(para):
     x0, y0, I0, xstd0, ystd0, phi = para[:6]
@@ -81,7 +85,7 @@ def log_probability(para, x, y, f, ferr):
 #def fit_mcmc(f_mom0_, f_err_):
 #f_mom0, f_err = f_mom0_, f_err_
     # Ie    Re    n   e   t  
-comp_0 = [-0.015, 0.015, 29.903*250, 0.095, 0.053, 17.462]
+comp_0 = [-0.015, 0.015, 29.903*250, 0.095, 0.053, 17.462]# *250
 comp_1 = [0.437*250, 1.297, 0.476, 0.202, 141.914]
 comp_2 = [2.367*250, 0.498, 0.289, 0.685, 33.651]
 
@@ -90,7 +94,7 @@ fit_results = comp_0 + comp_1 + comp_2
 x, y = np.mgrid[:2*size, :2*size]
 
 # %%
-output_dir = "/home/qyfei/Desktop/Results/map_visualization/fitting/Results/PG0050/units/gaussian_sersic/"
+output_dir = "/home/qyfei/Desktop/Results/map_visualization/fitting/Results/PG0050/units/gaussian_sersic_new/"
 print("Begin mcmc fitting:")
 from multiprocessing import Pool
 import emcee
@@ -102,7 +106,7 @@ backend.reset(nwalkers, ndim)
 
 with Pool() as pool:
     sampler = emcee.EnsembleSampler(nwalkers, ndim, log_probability, args=(x, y, f_mom0_test, r_test), pool=pool, backend=backend)
-    sampler.run_mcmc(pos, 2000, progress=True)
+    sampler.run_mcmc(pos, 3000, progress=True)
 
 # %%
 fig, axes = plt.subplots(16, figsize=(10, 16), sharex=True)
@@ -139,7 +143,7 @@ fig = corner.corner(
 
 
 # %%
-output_dir = "/home/qyfei/Desktop/Results/map_visualization/fitting/Results/PG0050/units/gaussian_sersic/"
+output_dir = "/home/qyfei/Desktop/Results/map_visualization/fitting/Results/PG0050/units/gaussian_sersic_new/"
 
 # %%
 
@@ -147,7 +151,8 @@ import h5py
 import numpy as np
 import matplotlib.pyplot as plt
 import corner
-#output_dir = "/home/qyfei/Desktop/Results/map_visualization/fitting/Results/PG0050/triple_sersic/"
+
+output_dir = "/home/qyfei/Desktop/Results/map_visualization/fitting/Results/PG0050/gaussian_sersic/"
 
 with h5py.File(output_dir+"tutorial.h5", "r") as f:
     print(list(f.keys()))
@@ -155,7 +160,7 @@ f = h5py.File(output_dir+"tutorial.h5", "r")
 accepted = f['mcmc']['accepted']
 chain = f['mcmc']['chain']
 log_prob = f['mcmc']['log_prob']
-get_chain = np.reshape(chain[1000:], (200*1000, 16))
+get_chain = np.reshape(chain[500:], (400*500, 16))
 
 # %%
 labels = ["$x_0$", "$y_0$", "I0", "xstd", "ystd", "phi", "Ie1", "Re1", "n1", "e1", "t1", "Ie2", "Re2", "n2", "e2", "t2"]
@@ -165,7 +170,7 @@ for i in range(len(get_chain[1])):
     para_out.append(np.percentile(get_chain[:,i], [50])[0])
     mcmc = (np.percentile(get_chain[:,i], [16, 50, 84]))
     q = np.diff(mcmc)
-    txt = "\mathrm{{{3}}} = {0:.3f}_{{-{1:.3f}}}^{{{2:.3f}}}"
+    txt = "\mathrm{{{3}}} = {0:.2f}_{{-{1:.2f}}}^{{{2:.2f}}}"
     txt = txt.format(mcmc[1], q[0], q[1], labels[i])
     display(Math(txt))
 
@@ -175,7 +180,7 @@ for i in range(len(get_chain[1])):
 fig = corner.corner(
         get_chain, labels=labels, truths=[para_out[0],para_out[1],para_out[2],para_out[3],para_out[4],para_out[5],para_out[6],para_out[7],para_out[8],para_out[9],para_out[10],para_out[11], para_out[12], para_out[13], para_out[14], para_out[15]]
     )
-#plt.savefig(output_dir+"corner.pdf", bbox_inches="tight")
+# plt.savefig(output_dir+"corner.pdf", bbox_inches="tight")
 # %%
 
 cmap = "jet"
@@ -185,23 +190,23 @@ f_disk = Disk2D(hdu, x, y, para_out[0], para_out[1], para_out[6], para_out[7], p
 f_bar = Disk2D(hdu, x, y, para_out[0], para_out[1], para_out[11], para_out[12], para_out[13], para_out[14], para_out[15])
 
 f_model = f_bulge + f_disk + f_bar
-f_mom0 = f_mom0_test
+f_mom0_test = f_mom0
 f_total_res = f_mom0_test - f_model
 #f_mom0[np.where(f_mom0<=2*r_test)] = 0
 
-mom0_level = np.array([-1,1,2,4,8,16,32,64,128])*2*r_test
-vmin, vmax = 2*r, np.percentile(f_mom0, [99.999])
+mom0_level = np.array([-1,1,2,4,8,16,32,64,128])*3*0.043#r_test
+vmin, vmax = 0.25, np.percentile(f_mom0_test, [99.999])
 
 fig, axes = plt.subplots(figsize=(18, 7), nrows=1, ncols=3)
 plt.subplots_adjust(wspace=0)
 ax0, ax1, ax2 = axes
-im0 = ax0.imshow(f_mom0, vmin=-vmin, vmax=vmax, cmap=cmap, origin='lower')
+im0 = ax0.imshow(f_mom0_test, vmin=-vmin, vmax=vmax, cmap=cmap, origin='lower', norm=colors.PowerNorm(gamma=0.525))
 ax0.contour(f_mom0, mom0_level, colors=["k"], linewidths=1.)
 ax0.text(10, 10, "DATA", color="w")
-im1 = ax1.imshow(f_model, vmin=-vmin, vmax=vmax, cmap=cmap, origin='lower')
+im1 = ax1.imshow(f_model, vmin=-vmin, vmax=vmax, cmap=cmap, origin='lower', norm=colors.PowerNorm(gamma=0.525))
 ax1.contour(f_model, mom0_level, colors=["k"], linewidths=1.)
 ax1.text(10, 10, "MODEL", color="w")
-im2 = ax2.imshow(f_total_res, vmin=-110, vmax=110, cmap=cmap, origin='lower')
+im2 = ax2.imshow(f_total_res, vmin=-0.86, vmax=0.86, cmap=cmap, origin='lower')
 ax2.contour(f_total_res, mom0_level, colors=["k"], linewidths=1.)
 
 for ax in axes[:]:
@@ -225,7 +230,7 @@ ax0.add_artist(rec)
 Beam = beam(hdu, 5., 5., 'w', pix_size)
 ax0.add_artist(Beam[0])
 
-#plt.savefig(output_dir+"Intensity_fit.pdf", bbox_inches="tight", dpi=300)
+# plt.savefig(output_dir+"Intensity_fit.pdf", bbox_inches="tight", dpi=300)
 
 # %%
 ## Show the region in which residual is large
@@ -277,4 +282,49 @@ F_gaussian_bulge = f_gaussian_bulge(x, y)
 L_bulge = np.nansum(F_gaussian_bulge)*(0.05*u.arcsec/Planck15.arcsec_per_kpc_proper(0.061))**2*1e6
 L_bulge
 np.sqrt(G*L_bulge.value/r_fit)
+# %%
+## Check two methods
+from scipy.signal import convolve as scipy_convolve
+from astropy.modeling.models import Sersic2D, Gaussian2D
+from map_visualization.fitting.module import kernel
+
+pix_size = hdu.header['CDELT1']*u.deg.to('arcsec')
+x_0, y_0 = size - para_out[0]/pix_size, size - para_out[1]/pix_size
+kernel_CO = kernel(hdu)
+
+## The first Sersic component
+amplitude = para_out[6]
+r_eff = para_out[7]/pix_size
+n = para_out[8]
+ellip = para_out[9]
+theta = -np.radians(para_out[10])
+sersic1 = Sersic2D(amplitude, r_eff, n, x_0, y_0, ellip, theta)
+
+## The second Sersic component
+amplitude = para_out[11]
+r_eff = para_out[12]/pix_size
+n = para_out[13]
+ellip = para_out[14]
+theta = -np.radians(para_out[15])
+sersic2 = Sersic2D(amplitude, r_eff, n, x_0, y_0, ellip, theta)
+
+## The Gaussian component
+I0, x_std, y_std, phi = para_out[2], para_out[3]/pix_size, para_out[4]/pix_size, -np.radians(para_out[5])
+gauss = Gaussian2D(I0, x_0, y_0, x_std, y_std, phi)
+
+total = sersic1(x, y) + sersic2(x, y) + gauss(x, y)
+total_conv = scipy_convolve(total, kernel_CO, mode='same', method='fft')
+# %%
+fig, axes = plt.subplots(figsize=(18, 7), nrows=1, ncols=3)
+plt.subplots_adjust(wspace=0)
+ax0, ax1, ax2 = axes
+im0 = ax0.imshow(f_model, vmin=-vmin, vmax=vmax, cmap=cmap, origin='lower', norm=colors.PowerNorm(gamma=0.525))
+ax0.contour(f_model, mom0_level, colors=["k"], linewidths=1.)
+ax0.text(10, 10, "DATA", color="w")
+im1 = ax1.imshow(total_conv, vmin=-vmin, vmax=vmax, cmap=cmap, origin='lower', norm=colors.PowerNorm(gamma=0.525))
+ax1.contour(total_conv, mom0_level, colors=["k"], linewidths=1.)
+ax1.text(10, 10, "MODEL", color="w")
+im2 = ax2.imshow(f_model - total_conv, vmin=-0.86, vmax=0.86, cmap=cmap, origin='lower')
+ax2.contour(f_model - total_conv, mom0_level, colors=["k"], linewidths=1.)
+
 # %%

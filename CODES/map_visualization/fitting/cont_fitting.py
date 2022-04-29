@@ -16,12 +16,12 @@ from map_visualization.maps import beam
 from map_visualization.fitting.module import Gauss2D
 
 cont, wcs, size, pix_size, hdu, pos_cen = load_cont(path, file)
-xpos, ypos = pos_cen
+ypos, xpos = pos_cen[1][0], pos_cen[0][0]
 size = 100
 sigma=1.3e-02
 f_cont = cont[xpos-size:xpos+size, ypos-size:ypos+size]
 f_err = sigma
-cont_level = np.array([-1,1,2,4,8,16])*2*f_err
+cont_level = np.array([-1,1,2,4,8,16])*3*f_err
 
 # %%
 def log_likelihood(para, x, y, z, zerr):
@@ -85,7 +85,7 @@ def plot_fit_mini(fit_results):
 # %%
 def log_prior(para):
     x0, y0, I0, xstd0, ystd0, phi = para
-    if -1.<x0<1. and -1.<y0<1. and 1e-5<I0<50. and 0.<xstd0<=10. and 0.<ystd0<=10.0 and 0.<phi<=360:
+    if -1.<x0<1. and -1.<y0<1. and 1e-5<I0<50. and 0.<xstd0<=10. and 0.<ystd0<=10.0 and -360<phi<=360:
         return 0.0
     return -np.inf
 
@@ -96,15 +96,15 @@ def log_probability(para, x, y, f, ferr):
     return lp + log_likelihood(para, x, y, f, ferr)
 
 x, y = np.mgrid[:2*size, :2*size]
-fit_results = [-0.2, 0.2, 5., 0.05, 0.05, 30.]
+fit_results = [0., 0., 5.057, 0.074, 0.042, 23.447]
 #def fit_mcmc(fit_results):
 from multiprocessing import Pool
 import emcee
-output_dir = "/home/qyfei/Desktop/Results/map_visualization/fitting/Results/PG0050/sersic/"
+output_dir = "/home/qyfei/Desktop/Results/map_visualization/fitting/Results/PG0050/cont/"
 
 x0_g_ml, y0_g_ml, I0_ml, xstd_ml, ystd_ml, phi_ml = fit_results
 pos = fit_results + 1e-4 * np.random.randn(200, 6)
-backname = "cont_tutorial_gauss.h5"
+backname = "cont_tutorial_gauss_new.h5"
 nwalkers, ndim = pos.shape
 backend = emcee.backends.HDFBackend(output_dir+backname)
 backend.reset(nwalkers, ndim)
@@ -128,7 +128,7 @@ for i in range(ndim):
     axes[-1].set_xlabel("step number")
 
 # %%
-output_dir = "/home/qyfei/Desktop/Results/map_visualization/fitting/Results/PG0050/sersic/"
+output_dir = "/home/qyfei/Desktop/Results/map_visualization/fitting/Results/PG0050/cont/"
 import h5py
 import numpy as np
 import matplotlib.pyplot as plt
@@ -137,7 +137,7 @@ import corner
 #with h5py.File(output_dir+"tutorial.h5", "r") as f:
 #    print(list(f.keys()))
 
-f = h5py.File(output_dir+"cont_tutorial_gauss.h5", "r")
+f = h5py.File(output_dir+"cont_tutorial_gauss_new.h5", "r")
 accepted = f['mcmc']['accepted']
 chain = f['mcmc']['chain']
 log_prob = f['mcmc']['log_prob']
@@ -210,31 +210,68 @@ ax0.add_artist(Beam[0])
 #plt.savefig('/home/qyfei/Desktop/Results/map_visualization/fitting/Results/PG0050/sersic/CO21_cont_fit_gauss.pdf', bbox_inches='tight', dpi=300)
 
 # %%
+## Deconvolved result
+from matplotlib.colors import LogNorm
 from astropy.modeling.models import Sersic2D, Gaussian2D
-model_cont = Gaussian2D(5.057, 100, 100, 0.074/0.05, 0.042/0.05, -np.radians(23.447))
+model_cont = Gaussian2D(5.057, 100+0.010/0.05, 100-0.019/0.05, 0.074/0.05, 0.042/0.05, -np.radians(23.447))
 model_cont_image = model_cont(x, y)
 
-model_mom0 = Sersic2D(7.454, 0.136/0.05, 3.506, 100, 100, 0.500, -np.radians(208.069)) + Sersic2D(0.426, 1.313/0.05, 0.454, 100, 100, 0.213, -np.radians(140.881)) + Sersic2D(1.901, 0.517/0.05, 0.226, 100, 100, 0.707, -np.radians(33.514))
+# model_mom0 = Sersic2D(7.454, 0.136/0.05, 3.506, 100, 100, 0.500, -np.radians(208.069)) + Sersic2D(0.426, 1.313/0.05, 0.454, 100, 100, 0.213, -np.radians(140.881)) + Sersic2D(1.901, 0.517/0.05, 0.226, 100, 100, 0.707, -np.radians(33.514))
+model_mom0 = Gaussian2D(29.903, 100+0.015/0.05, 100-0.016/0.05, 0.094/0.05, 0.052/0.05, -np.radians(16.592)) + Sersic2D(0.437, 1.297/0.05, 0.476, 100+0.015/0.05, 100-0.016/0.05, 0.202, -np.radians(141.901)) + Sersic2D(2.367, 0.495/0.05, 0.299, 100+0.015/0.05, 100-0.016/0.05, 0.684, -np.radians(33.653))
 model_mom0_image = model_mom0(x, y)
 
-plt.imshow(model_cont_image, origin='lower', cmap="Greys")
-plt.contour(f_model, mom0_level)
-plt.xlim(50, 150)
-plt.ylim(50, 150)
+plt.imshow(model_cont_image, origin='lower', vmin=0.013, vmax=np.percentile(model_cont_image, [99.999]), cmap="Greys", norm=LogNorm())
+plt.contour(model_cont_image, levels=np.array([0.01, 0.05, 0.1, 0.68, 0.95, 0.997])*np.nanmax(model_cont_image))
+# plt.contour(f_model, mom0_level)
+plt.xlim(80, 120)
+plt.ylim(80, 120)
+
+beam2pixels = 39.88
+N = np.where(model_cont_image>=0.01*np.nanmax(model_cont_image))
+f_cont_decon = np.nansum(model_cont_image[N]/beam2pixels)
+print("Continuum flux in region is", f_cont_decon, "mJy")
 
 # %%
 CO_pix = np.pi*0.356*0.316/0.05/0.05/4/np.log(2)
-N = np.where(model_cont_image>=2*0.013)
-N = np.where(f_cont>=2*0.013)
 
 radius = np.sqrt((x-100)**2 + (y-100)**2)
 mask = radius<=2*0.174/0.05
+
 print(len(N[0]))
-np.nansum(f_mom0[N])/CO_pix
-np.nansum(f_mom0*mask)/CO_pix
+f_CO_decon = np.nansum(model_mom0_image[N])/CO_pix
+print("CO(2-1) flux is:", f_CO_decon, "Jy/beam km/s")
+# print(np.nansum(model_mom0_image*mask)/CO_pix)
 
 # %%
-np.nansum(model_mom0_image)/CO_pix
+## Area
+from astropy.cosmology import Planck15
+import astropy.units as u
+A_decon = np.pi*9*0.074*0.042*u.arcsec**2/Planck15.arcsec_per_kpc_proper(0.061)**2/np.cos(np.deg2rad(41))
+A_decon
 # %%
-np.nansum(model_cont_image[N])/CO_pix
+## surface density
+
+## SFR surface density
+ef_cont = 4.2e-05*1e3
+
+SFR_decon = f_cont_decon/2.2*26.3*u.Unit("M_sun/yr")
+eSFR_decon = ef_cont/2.2*26.3*u.Unit("M_sun/yr")
+Sigma_SFR_decon = SFR_decon/A_decon
+eSigma_SFR_decon = eSFR_decon/A_decon
+
+## Molecular gas surface density
+DL = Planck15.luminosity_distance(0.061)
+L_CO_decon = 3.25e7*f_CO_decon*DL.value**2/(1+0.061)/(230.58)**2/0.9
+M_H2_decon = 1.27*L_CO_decon
+M_H2_low_decon = (1.27-0.71)*L_CO_decon
+M_H2_up_decon = (1.27+0.83)*L_CO_decon
+M_H2_decon_tra = 3.1*1.4*L_CO_decon
+
+Sigma_H2_decon = M_H2_decon*u.Unit("M_sun")/A_decon.to("pc^2")
+Sigma_H2_low_decon = M_H2_low_decon*u.Unit("M_sun")/A_decon.to("pc^2")
+Sigma_H2_up_decon = M_H2_up_decon*u.Unit("M_sun")/A_decon.to("pc^2")
+e1Sigma_H2_decon = Sigma_H2_low_decon - Sigma_H2_decon
+e2Sigma_H2_decon = Sigma_H2_up_decon - Sigma_H2_decon
+Sigma_H2_decon_tra = M_H2_decon_tra*u.Unit("M_sun")/A_decon.to("pc^2")
+
 # %%

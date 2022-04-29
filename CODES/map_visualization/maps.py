@@ -16,7 +16,7 @@ def beam(HDU, XPOS, YPOS, col, cellsize):
     bmaj, bmin, bpa = hdu.header['BMAJ'], hdu.header['BMIN'], hdu.header['BPA']
     Bmaj = bmaj*u.Unit('deg').to('arcsec')/cell
     Bmin = bmin*u.Unit('deg').to('arcsec')/cell
-    Beam = matplotlib.patches.Ellipse((xpos,ypos), Bmaj, Bmin, 90+bpa, edgecolor='k', facecolor='gray', fill=True, zorder=3)
+    Beam = matplotlib.patches.Ellipse((xpos,ypos), Bmaj, Bmin, 90+bpa, edgecolor='k', facecolor=c, fill=True, zorder=3)
     return Beam, Bmaj, Bmin
 
 ## Deal with moment 0 maps

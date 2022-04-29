@@ -11,15 +11,19 @@ plt.rc('font', family='dejavuserif', size=25)
 plt.rc('xtick', direction='in', top=True)
 plt.rc('ytick', direction='in', right=True)
 
-path = "/media/qyfei/f6e0af82-2ae6-44a3-a033-f66b47f50cf4/ALMA/PG0050+124/CO21_combine/combine/line/"
-file = "PG0050_CO21-combine-line-10km-mosaic-mom0.fits"
+# path = "/media/qyfei/f6e0af82-2ae6-44a3-a033-f66b47f50cf4/ALMA/PG0050+124/CO21_combine/combine/line/"
+# file = "PG0050_CO21-combine-line-10km-mosaic-mom0.fits"
 #name_pbc = "PG0050_CO21-combine-line-10km-mosaic-pbc-mom0-rms.fits"
+path = "/media/qyfei/f6e0af82-2ae6-44a3-a033-f66b47f50cf4/ALMA/Type1AGN/PG_quasars/PG0923/data/"
+# file = "PG0923.dilmsk.mom0.fits.gz"
+# efile = "PG0923.dilmsk.emom0.fits.gz"
 
+file = "PG0923+129_CO21_final_image_mom0.fits"
 from map_visualization.moment0 import load_mom0
 from map_visualization.maps import beam
 from map_visualization.fitting.module import Disk2D, Gauss2D
 mom0, wcs, pos_cen, size, pix_size, r, hdu = load_mom0(path, file)
-
+# emom0, wcs, pos_cen, size, pix_size, r, hdu = load_mom0(path, efile)
 ## Build the model
 
 def log_likelihood(para, x, y, z, zerr):
@@ -32,15 +36,22 @@ def log_likelihood(para, x, y, z, zerr):
 
 # %%
 mom0, wcs, pos_cen, size, pix_size, r, hdu = load_mom0(path, file)
-size = 100                  ## The size of map
-xpos, ypos = pos_cen[0][0], pos_cen[1][0]       ## The position of center
-f_mom0 = mom0[xpos-size:xpos+size, ypos-size:ypos+size] ## The moment map that we want to fit
-f_err = r                   ## The rms noise of the moment0 map
-mom0_level = np.array([-1,1,2,4,8,16,32])*3*f_err
+size = 70                  ## The size of map
+xpos, ypos = 88, 88#pos_cen[0][0], pos_cen[1][0]       ## The position of center
+f_mom0 = mom0[0][0][xpos-size:xpos+size, ypos-size:ypos+size] ## The moment map that we want to fit
+f_err = 0.055#emom0[xpos-size:xpos+size, ypos-size:ypos+size]                   ## The rms noise of the moment0 map
+# f_err[np.isnan(f_err)] = 0.056
+mom0_level = np.array([-1,1,2,4,8,16,32,64,128,256,512,1024])*3*f_err
+
+plt.figure(figsize=(8, 10))
+ax = plt.subplot(111)
+ax.imshow(f_mom0, origin='lower', cmap='jet')
+ax.contour(f_mom0, mom0_level, colors=['k'])
+
 # %%
 ## convert into K km/s
 from astropy.cosmology import Planck15
-z = 0.061
+z = 0.029
 DL = Planck15.luminosity_distance(z)
 nu_obs = 230.58/(1+z)#230.58 # Convert to CO(1-0)
 
@@ -58,7 +69,7 @@ plt.colorbar()
 def log_prior(para):
     x0, y0, Ie, Re, n, e, t = para[:7]
     Ie1, Re1, n1, e1, t1 = para[7:]
-    if not (-10<x0<10 and -10<y0<10 and 1e-5<Ie<20 and 0.<Re<10. and 0.0<n<10.0 and 0.<e<=1 and 0<t<=360 and 1e-5<Ie1<20 and 0.<Re1<=10. and 0<n1<10. and 0<e1<=1 and 0<t1<=360):
+    if not (-10<x0<10 and -10<y0<10 and 1e-5<Ie<200 and 0.<Re<10. and 0.0<n<10.0 and 0.<e<=2 and -360<t<=360 and 1e-5<Ie1<200 and 0.<Re1<=10. and 0<n1<10. and 0<e1<=2 and -360<t1<=360):
         return -np.inf
     lp = 0
     return lp
@@ -72,9 +83,9 @@ def log_probability(para, x, y, f, ferr):
 def fit_mcmc(f_mom0_, f_err_):
     f_mom0, f_err = f_mom0_, f_err_
     #               x0      y0      Ie      Re  n       e   t       Ie1   Re1     n1      e1    t1
-    fit_results = [-0.015, 0.015, 0.419, 1.341, 0.5, 0.243, 130, 4.510, 0.327, 1.829, 0.651, 30]#fit_mini(f_mom0)
+    fit_results = [-0.07, -0.48, 1.2, 3.0, 0.5, 0.2, 90, 0.2, 1.0, 0.6, 0.3, 60]#fit_mini(f_mom0)
     x, y = np.mgrid[:2*size, :2*size]
-    output_dir = "/home/qyfei/Desktop/Codes/CODES/map_visualization/fitting/Results/PG0050/double_sersic/"
+    output_dir = "/home/qyfei/Desktop/Results/map_visualization/fitting/Results/PG0923/double_sersic/"
     print("Begin mcmc fitting:")
     from multiprocessing import Pool
     import emcee
@@ -119,10 +130,10 @@ def fit_mcmc(f_mom0_, f_err_):
     return para_out, para_out_m, para_out_p
 
 # %%
-output_dir = "/home/qyfei/Desktop/Results/map_visualization/fitting/Results/PG0050/double_sersic/"
+output_dir = "/home/qyfei/Desktop/Results/map_visualization/fitting/Results/PG0923/double_sersic/"
 
 # %%
-#para_out, para_out_m, para_out_p = fit_mcmc(f_mom0, f_err)
+para_out, para_out_m, para_out_p = fit_mcmc(f_mom0, f_err)
 
 # %%
 
@@ -130,7 +141,7 @@ import h5py
 import numpy as np
 import matplotlib.pyplot as plt
 import corner
-output_dir = "/home/qyfei/Desktop/Results/map_visualization/fitting/Results/PG0050/double_sersic/"
+output_dir = "/home/qyfei/Desktop/Results/map_visualization/fitting/Results/PG1126/double_sersic/"
 
 with h5py.File(output_dir+"tutorial.h5", "r") as f:
     print(list(f.keys()))
@@ -139,7 +150,7 @@ accepted = f['mcmc']['accepted']
 chain = f['mcmc']['chain']
 log_prob = f['mcmc']['log_prob']
 
-get_chain = np.reshape(chain[600:], (200*400, 12))
+get_chain = np.reshape(chain[800:], (200*200, 12))
 
 # %%
 labels = ["$x_0$", "$y_0$", "Ie", "Re", "n", "e", "t", "Ie1", "Re1", "n1", "e1", "t1"]
@@ -157,30 +168,34 @@ for i in range(len(get_chain[1])):
 #flat_samples = sampler.get_chain(discard=100, thin=15, flat=True)
 #print(flat_samples.shape)
 fig = corner.corner(
-        get_chain, labels=labels, truths=[para_out[0],para_out[1],para_out[2],para_out[3],para_out[4],para_out[5],para_out[6],para_out[7],para_out[8],para_out[9],para_out[10],para_out[11]]
+        get_chain, labels=labels, truths=[para_out[0],para_out[1],para_out[2],para_out[3],para_out[4],para_out[5],para_out[6],para_out[7],para_out[8],para_out[9],para_out[10],para_out[11]], show_titles=True
     )
-#plt.savefig(output_dir+"corner.pdf", bbox_inches="tight")
+# plt.savefig(output_dir+"corner.pdf", bbox_inches="tight")
 
 # %%
 x, y = np.mgrid[:2*size, :2*size]
+
+# para_out = [-0.058, 0.6, 1.0, 3.5, 0.4, 0.78, 153, 2.5, 0.2, 1.5, 0.3, 153]
+para_out = [0., 0., 1.2, 2.0, 0.4, 0.1, 90, 0.2, 1.5, 0.5, 0.3, 60]
+
 f_outer = Disk2D(hdu, x, y, para_out[0], para_out[1], para_out[2], para_out[3], para_out[4], para_out[5], para_out[6])
 f_inner = Disk2D(hdu, x, y, para_out[0], para_out[1], para_out[7], para_out[8], para_out[9], para_out[10], para_out[11])
 f_model = f_outer + f_inner
 f_mom0 = f_mom0
 f_total_res = f_mom0 - f_model
-mom0_level = np.array([-1,1,2,4,8,16,32,64,128])*2*f_err
+mom0_level = np.array([-1,1,2,4,8,16,32,64,128])*3*f_err
 vmin, vmax = f_err, np.percentile(f_mom0, [99.9])
 
 fig, axes = plt.subplots(figsize=(18, 7), nrows=1, ncols=3)
 plt.subplots_adjust(wspace=0)
 ax0, ax1, ax2 = axes
-im0 = ax0.imshow(f_mom0, vmin=vmin, vmax=vmax, cmap='Greys', origin='lower', norm=LogNorm())
+im0 = ax0.imshow(f_mom0, cmap='jet', origin='lower')
 ax0.contour(f_mom0, mom0_level, colors=['k'], linewidths=0.5)
 ax0.text(10, 10, "DATA", color="k")
-im1 = ax1.imshow(f_model, vmin=vmin, vmax=vmax, cmap='Greys', origin='lower', norm=LogNorm())
+im1 = ax1.imshow(f_model, cmap='jet', origin='lower')
 ax1.contour(f_model, mom0_level, colors=['k'], linewidths=0.5)
 ax1.text(10, 10, "MODEL", color="k")
-im2 = ax2.imshow(f_total_res, vmin=-0.6, vmax=0.6, cmap='Greys', origin='lower')
+im2 = ax2.imshow(f_total_res, vmin=-0.6, vmax=0.6, cmap='jet', origin='lower')
 ax2.contour(f_total_res, mom0_level, colors=['k'], linewidths=0.5)
 
 for ax in axes[:]:
@@ -202,7 +217,7 @@ ax0.add_artist(rec)
 Beam = beam(hdu, 5., 5., 'w', pix_size)
 ax0.add_artist(Beam[0])
 
-#plt.savefig(output_dir+"CO21_mom0_fit.pdf", bbox_inches="tight", dpi=300)
+# plt.savefig(output_dir+"CO21_mom0_fit.pdf", bbox_inches="tight", dpi=300)
 
 # %%
 plt.figure(figsize=(8, 10))
@@ -222,13 +237,13 @@ ax.yaxis.set_ticklabels([])
 fig, axes = plt.subplots(figsize=(18, 7), nrows=1, ncols=3)
 plt.subplots_adjust(wspace=0)
 ax0, ax1, ax2 = axes
-im0 = ax0.imshow(f_inner, vmin=-0.086, vmax=8.5, cmap='jet', origin='lower')
+im0 = ax0.imshow(f_inner, vmin=0, vmax=2.0, cmap='jet', origin='lower')
 ax0.contour(f_inner, mom0_level, colors=['k'], linewidths=0.5)
 ax0.text(10, 10, "BAR?", color="w")
-im1 = ax1.imshow(f_outer, vmin=0-0.086, vmax=8.5, cmap='jet', origin='lower')
+im1 = ax1.imshow(f_outer, vmin=0, vmax=2.0, cmap='jet', origin='lower')
 ax1.contour(f_outer, mom0_level, colors=['k'], linewidths=0.5)
 ax1.text(10, 10, "DISK", color="w")
-im2 = ax2.imshow(f_model, vmin=0-0.086, vmax=8.5, cmap='jet', origin='lower')
+im2 = ax2.imshow(f_model, vmin=0, vmax=2.0, cmap='jet', origin='lower')
 ax2.contour(f_model, mom0_level, colors=['k'], linewidths=0.5)
 ax2.text(10, 10, "MODEL", color="w")
 for ax in axes[:]:
